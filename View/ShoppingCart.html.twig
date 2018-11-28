@@ -1,0 +1,72 @@
+{% extends "Master/PortalTemplate.html.twig" %}
+
+{% block body %}
+    {% import _self as macros %}
+    <div class="body-section">
+        <br/>
+        <div class="container grid-lg">
+            <div class="columns">
+                <div class="column col-12">
+                    <form method="post">
+                        <input type="hidden" name="action" value="edit"/>
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div class="panel-title text-center">
+                                    <i class="fas fa-shopping-cart fa-3x" aria-hidden="true"></i>
+                                    <p class="empty-title h5">{{ i18n.trans('shopping-cart') }}</p>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                {{ macros.orderLines(fsc, i18n) }}
+                            </div>
+                            <div class="panel-footer">
+                                <div class="columns">
+                                    <div class="column col">
+                                        <b>{{ i18n.trans('total') }}</b>
+                                        {{ fsc.divisaTools.format(fsc.presupuesto.neto) }}
+                                    </div>
+                                    <div class="column col text-right">
+                                        <button type="submit" class="btn btn-primary">
+                                            {{ i18n.trans('continue') }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% macro orderLines(fsc, i18n) %}
+    <div class="custom-scroll">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>{{ i18n.trans('product') }}</th>
+                    <th class="text-right">{{ i18n.trans('quantity') }}</th>
+                    <th class="text-right" style="min-width: 100px;">{{ i18n.trans('price') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for line in fsc.presupuesto.getLines() %}
+                    <tr>
+                        <td>
+                            <b>{{ line.referencia }}</b> {{ line.descripcion }}
+                        </td>
+                        <td class="text-right">{{ line.cantidad }}</td>
+                        <td class="text-right">{{ fsc.divisaTools.format(line.pvpunitario) }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="bg-warning">
+                            {{ i18n.trans('no-data') }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endmacro %}
