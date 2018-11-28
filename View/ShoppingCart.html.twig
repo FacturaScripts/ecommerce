@@ -7,7 +7,7 @@
         <div class="container grid-lg">
             <div class="columns">
                 <div class="column col-12">
-                    <form method="post">
+                    <form action="{{ fsc.url() }}" method="post">
                         <input type="hidden" name="action" value="edit"/>
                         <div class="panel">
                             <div class="panel-header">
@@ -46,8 +46,9 @@
             <thead>
                 <tr>
                     <th>{{ i18n.trans('product') }}</th>
-                    <th class="text-right">{{ i18n.trans('quantity') }}</th>
                     <th class="text-right" style="min-width: 100px;">{{ i18n.trans('price') }}</th>
+                    <th class="text-right">{{ i18n.trans('quantity') }}</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -56,12 +57,19 @@
                         <td>
                             <b>{{ line.referencia }}</b> {{ line.descripcion }}
                         </td>
-                        <td class="text-right">{{ line.cantidad }}</td>
                         <td class="text-right">{{ fsc.divisaTools.format(line.pvpunitario) }}</td>
+                        <td class="text-right">
+                            <input type="number" name="quantity_{{ line.idlinea }}" value="{{ line.cantidad }}" min="0" class="form-input" required=""/>
+                        </td>
+                        <td>
+                            <a href="{{ fsc.url() }}?action=delete&idline={{ line.idlinea }}" class="btn btn-error" title="{{ i18n.trans('delete') }}">
+                                <i class="fas fa-trash-alt fa-fw" aria-hidden="true"></i>
+                            </a>
+                        </td>
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="3" class="bg-warning">
+                        <td colspan="5" class="bg-warning">
                             {{ i18n.trans('no-data') }}
                         </td>
                     </tr>

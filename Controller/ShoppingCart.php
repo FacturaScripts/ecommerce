@@ -120,7 +120,59 @@ class ShoppingCart extends PortalController
         switch ($action) {
             case 'add':
                 return $this->addProduct();
+
+            case 'delete':
+                return $this->deleteLine();
+
+            case 'edit':
+                return $this->editAction();
         }
+    }
+
+    protected function deleteLine()
+    {
+        $idlinea = $this->request->get('idline', '');
+        foreach ($this->presupuesto->getLines() as $line) {
+            if ($line->idlinea != $idlinea) {
+                continue;
+            }
+
+            if ($line->delete()) {
+                $docTools = new BusinessDocumentTools();
+                $docTools->recalculate($this->presupuesto);
+                $this->presupuesto->save();
+
+                $this->miniLog->notice($this->i18n->trans('record-deleted-correctly'));
+                return true;
+            }
+        }
+
+        $this->miniLog->warning($this->i18n->trans('record-deleted-error'));
+        return false;
+    }
+
+    protected function editAction()
+    {
+        foreach ($this->presupuesto->getLines() as $line) {
+            $cantidad = (int) $this->request->request->get('quantity_' . $line->idlinea, '0');
+            if ($cantidad <= 0) {
+                $line->delete();
+                continue;
+            }
+
+            $line->cantidad = $cantidad;
+            $line->save();
+        }
+
+        $docTools = new BusinessDocumentTools();
+        $docTools->recalculate($this->presupuesto);
+        if ($this->presupuesto->save()) {
+            $this->miniLog->notice($this->i18n->trans('record-updated-correctly'));
+            return true;
+        }
+
+        $this->miniLog->error($this->i18n->trans('record-save-error'));
+        return false;
     }
 
     /**
