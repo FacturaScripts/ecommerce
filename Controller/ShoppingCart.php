@@ -21,6 +21,7 @@ namespace FacturaScripts\Plugins\ecommerce\Controller;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\DivisaTools;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
+use FacturaScripts\Dinamic\Model\Pais;
 use FacturaScripts\Dinamic\Model\PresupuestoCliente;
 use FacturaScripts\Dinamic\Model\Variante;
 use FacturaScripts\Plugins\webportal\Lib\WebPortal\PortalController;
@@ -49,6 +50,16 @@ class ShoppingCart extends PortalController
     {
         parent::__construct($cache, $i18n, $miniLog, $className, $uri);
         $this->divisaTools = new DivisaTools();
+    }
+
+    /**
+     * 
+     * @return Pais[]
+     */
+    public function getCountries()
+    {
+        $pais = new Pais();
+        return $pais->all([], ['nombre' => 'ASC'], 0, 0);
     }
 
     public function privateCore(&$response, $user, $permissions)
@@ -126,6 +137,16 @@ class ShoppingCart extends PortalController
 
             case 'edit':
                 return $this->editAction();
+
+            case 'finalize':
+                $this->setTemplate('ShoppingCartOrder');
+                return $this->finalizeAction();
+
+            case 'order':
+                if ($this->editAction() && count($this->presupuesto->getLines()) > 0) {
+                    $this->setTemplate('ShoppingCartOrder');
+                }
+                break;
         }
     }
 
@@ -169,6 +190,41 @@ class ShoppingCart extends PortalController
         if ($this->presupuesto->save()) {
             $this->miniLog->notice($this->i18n->trans('record-updated-correctly'));
             return true;
+        }
+
+        $this->miniLog->error($this->i18n->trans('record-save-error'));
+        return false;
+    }
+
+    protected function finalizeAction()
+    {
+        $this->contact->nombre = $this->request->request->get('nombre', '');
+        $this->contact->apellidos = $this->request->request->get('apellidos', '');
+        $this->contact->empresa = $this->request->request->get('empresa', '');
+
+        $fields = ['cifnif', 'direccion', 'codpostal', 'apartado', 'direccion', 'ciudad', 'provincia', 'codpais'];
+        foreach ($fields as $field) {
+            $this->contact->{$field} = $this->request->request->get($field, '');
+            $this->presupuesto->{$field} = $this->request->request->get($field, '');
+        }
+
+        if ($this->contact->save()) {
+            /// sets customer
+            $cliente = $this->contact->getCustomer();
+            $this->presupuesto->codcliente = $cliente->codcliente;
+
+            /// change status
+            foreach ($this->presupuesto->getAvaliableStatus() as $status) {
+                if ($status->generadoc) {
+                    $this->presupuesto->idestado = $status->idestado;
+                    break;
+                }
+            }
+
+            if ($this->presupuesto->save()) {
+                $this->miniLog->notice($this->i18n->trans('record-updated-correctly'));
+                return true;
+            }
         }
 
         $this->miniLog->error($this->i18n->trans('record-save-error'));
