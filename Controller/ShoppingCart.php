@@ -22,6 +22,7 @@ use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\DivisaTools;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
 use FacturaScripts\Dinamic\Model\Pais;
+use FacturaScripts\Dinamic\Model\PedidoCliente;
 use FacturaScripts\Dinamic\Model\PresupuestoCliente;
 use FacturaScripts\Dinamic\Model\Variante;
 use FacturaScripts\Plugins\webportal\Lib\WebPortal\PortalController;
@@ -39,6 +40,12 @@ class ShoppingCart extends PortalController
      * @var DivisaTools
      */
     public $divisaTools;
+
+    /**
+     *
+     * @var PedidoCliente
+     */
+    public $pedidos = [];
 
     /**
      *
@@ -126,6 +133,7 @@ class ShoppingCart extends PortalController
     {
         $this->setTemplate('ShoppingCart');
         $this->loadPresupuesto();
+        $this->loadPedidos();
 
         $action = $this->request->request->get('action', $this->request->query->get('action', ''));
         switch ($action) {
@@ -215,7 +223,7 @@ class ShoppingCart extends PortalController
 
             /// change status
             foreach ($this->presupuesto->getAvaliableStatus() as $status) {
-                if ($status->generadoc) {
+                if ($status->generadoc == 'PedidoCliente') {
                     $this->presupuesto->idestado = $status->idestado;
                     break;
                 }
@@ -223,7 +231,12 @@ class ShoppingCart extends PortalController
 
             if ($this->presupuesto->save()) {
                 $this->miniLog->notice($this->i18n->trans('record-updated-correctly'));
-                return true;
+
+                /// redir to new order
+                foreach ($this->presupuesto->childrenDocuments() as $order) {
+                    $this->response->headers->set('Refresh', '0; ' . $order->url('public'));
+                    return true;
+                }
             }
         }
 
@@ -246,6 +259,20 @@ class ShoppingCart extends PortalController
         }
 
         return false;
+    }
+
+    protected function loadPedidos()
+    {
+        if (empty($this->contact->codcliente)) {
+            return;
+        }
+
+        $pedido = new PedidoCliente();
+        $where = [new DataBaseWhere('codcliente', $this->contact->codcliente)];
+        $order = ['fecha' => 'DESC', 'hora' => 'DESC'];
+        foreach ($pedido->all($where, $order) as $ped) {
+            $this->pedidos[] = $ped;
+        }
     }
 
     protected function loadPresupuesto()
