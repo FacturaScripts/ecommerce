@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of CommunityFS plugin for FacturaScripts.
+ * Copyright (C) 2018 Carlos Garcia Gomez  <carlos@facturascripts.com>
+-->
+
+<view>
+    <columns>
+        <group name="default" icon="fas fa-shopping-cart" numcolumns="12">
+            <column name="name" display="none" order="0">
+                <widget type="text" fieldname="name" readonly="true" required="true" />
+            </column>
+        </group>
+        <group name="stripe" icon="far fa-credit-card" title="stripe" numcolumns="12">
+            <column name="public-key" numcolumns="6" order="100">
+                <widget type="text" fieldname="stripepk" icon="fas fa-key" />
+            </column>
+            <column name="private-key" numcolumns="6" order="110">
+                <widget type="text" fieldname="stripesk" icon="fas fa-key" />
+            </column>
+        </group>
+    </columns>
+</view>

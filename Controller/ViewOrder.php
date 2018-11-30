@@ -20,6 +20,7 @@ namespace FacturaScripts\Plugins\ecommerce\Controller;
 
 use FacturaScripts\Core\Base\DivisaTools;
 use FacturaScripts\Dinamic\Model\PedidoCliente;
+use FacturaScripts\Plugins\ecommerce\Lib\PaymentGateway;
 use FacturaScripts\Plugins\webportal\Lib\WebPortal\EditSectionController;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -43,10 +44,17 @@ class ViewOrder extends EditSectionController
      */
     protected $mainModel;
 
+    /**
+     *
+     * @var PaymentGateway
+     */
+    protected $paymentGateway;
+
     public function __construct(&$cache, &$i18n, &$miniLog, $className, $uri = '')
     {
         parent::__construct($cache, $i18n, $miniLog, $className, $uri);
         $this->divisaTools = new DivisaTools();
+        $this->paymentGateway = new PaymentGateway();
     }
 
     /**
@@ -90,9 +98,38 @@ class ViewOrder extends EditSectionController
         return $this->mainModel;
     }
 
+    /**
+     * 
+     * @return string
+     */
+    public function getPaymentGatewayHtml()
+    {
+        $order = $this->getMainModel();
+        $url = $order->url('public') . '&action=pay';
+        return $this->paymentGateway->getHtml($url, $order, $this->contact->email);
+    }
+
     protected function createSections()
     {
         $this->addHtmlSection('order', 'order', 'Section/Order', 'PedidoCliente', 'fas fa-file-invoice');
+    }
+
+    /**
+     * 
+     * @param string $action
+     *
+     * @return bool
+     */
+    protected function execPreviousAction(string $action)
+    {
+        switch ($action) {
+            case 'pay':
+                $this->payAction();
+                return true;
+
+            default:
+                return parent::execPreviousAction($action);
+        }
     }
 
     protected function loadData(string $sectionName)
@@ -120,5 +157,17 @@ class ViewOrder extends EditSectionController
             $this->setTemplate('Master/AccessDenied');
             return;
         }
+    }
+
+    protected function payAction()
+    {
+        $order = $this->getMainModel();
+        if ($this->paymentGateway->payAction($this->request, $order)) {
+            $this->miniLog->notice($this->i18n->trans('record-updated-correctly'));
+            $this->getMainModel(true);
+            return;
+        }
+
+        $this->miniLog->error($this->i18n->trans('record-save-error'));
     }
 }

@@ -1,0 +1,14 @@
+{
+    "name": "vendor/ecommerce",
+    "description": "Description of project ecommerce.",
+    "authors": [
+        {
+            "name": "carlos",
+            "email": "your@email.here"
+        }
+    ],
+    "require": {
+        "stripe/stripe-php": "v6.24.0",
+        "paypal/rest-api-sdk-php": "1.13.0"
+    }
+}
