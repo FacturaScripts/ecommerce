@@ -111,7 +111,8 @@ class ViewOrder extends EditSectionController
 
     protected function createSections()
     {
-        $this->addHtmlSection('order', 'order', 'Section/Order', 'PedidoCliente', 'fas fa-file-invoice');
+        $this->fixedSection();
+        $this->addHtmlSection('order', 'order', 'Section/Order', 'PedidoCliente', 'fas fa-shopping-cart');
     }
 
     /**
@@ -157,6 +158,8 @@ class ViewOrder extends EditSectionController
             $this->setTemplate('Master/AccessDenied');
             return;
         }
+
+        $this->title = $this->i18n->trans('order') . ' ' . $this->getMainModel()->codigo;
     }
 
     protected function payAction()

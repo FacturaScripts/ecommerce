@@ -60,19 +60,24 @@ class PaymentGateway
     public function payAction($request, $order)
     {
         Stripe::setApiKey(AppSettings::get('ecommerce', 'stripesk'));
-
         $charge = StripeCharge::create([
                 'amount' => $order->total * 100,
                 'currency' => $order->coddivisa,
                 'description' => $order->codigo,
                 'source' => $request->request->get('stripeToken')
         ]);
-        if ($charge['status'] == 'succeeded') {
-            $order->pagado = true;
-            return $order->save();
+        if ($charge['status'] != 'succeeded') {
+            return false;
         }
 
-        return false;
+        $order->pagado = true;
+        foreach ($order->getAvaliableStatus() as $status) {
+            if ($status->generadoc == 'AlbaranCliente') {
+                $order->idestado = $status->idestado;
+                break;
+            }
+        }
+        return $order->save();
     }
 
     /**
@@ -86,10 +91,15 @@ class PaymentGateway
     protected function getStripeHtml($url, $order, $email)
     {
         $i18n = new Translator();
+        $publicKey = AppSettings::get('ecommerce', 'stripepk');
+        if (empty($publicKey)) {
+            return '';
+        }
+
         return '<form action="' . $url . '" method="post">
   <script
     src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-    data-key="' . AppSettings::get('ecommerce', 'stripepk') . '"
+    data-key="' . $publicKey . '"
     data-amount="' . $order->total * 100 . '"
     data-email="' . $email . '"
     data-name="' . $order->getCompany()->nombrecorto . '"

@@ -1,72 +1,113 @@
 {% set order = fsc.getMainModel() %}
 
-<div class="panel">
-    <div class="panel-body">
-        <br/>
-        <div class="columns">
-            <div class="column col">
-                <h1 class="h3">
-                    <i class="fas fa-file-invoice fa-fw" aria-hidden="true"></i>
-                    {{ i18n.trans('order') }} {{ order.codigo }}
-                </h1>
-                <h2 class="h4">
-                    <i class="fas fa-map-marker fa-fw" aria-hidden="true"></i>
-                    {{ i18n.trans('billing-address') }}
-                </h2>
-                {{ order.nombrecliente }}, {{ i18n.trans('fiscal-number') }}: {{ order.cifnif }}<br/>
-                {{ order.direccion }}, {{ order.codpostal }}, {{ order.apartado }}<br/>
-                {{ order.ciudad }} ({{ order.provincia }})
-            </div>
-            <div class="column col text-right">
-                {% if order.pagado %}
-                    <span class="label label-rounded label-success">
-                        {{ i18n.trans('paid') }}
-                    </span>
-                    <br/>
-                    <span class="h3">
-                        {{ fsc.divisaTools.format(order.total) }}
-                    </span>
-                {% else %}
-                    <span class="h3">{{ fsc.divisaTools.format(order.total) }}</span>
-                    {{ fsc.getPaymentGatewayHtml() | raw }}
-                {% endif %}
-            </div>
+<div class="container">
+    <div class="columns">
+        <div class="column col-2 col-xs-12 text-right">
+            <i class="fas fa-shopping-cart fa-3x fa-fw" aria-hidden="true"></i>
         </div>
-        <div class="custom-scroll mb-2">
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th>{{ i18n.trans('product') }}</th>
-                        <th class="text-right" style="min-width: 100px;">{{ i18n.trans('price') }}</th>
-                        <th class="text-right">{{ i18n.trans('quantity') }}</th>
-                        <th class="text-right">{{ i18n.trans('tax') }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for line in order.getLines() %}
-                        <tr>
-                            <td>
-                                <b>{{ line.referencia }}</b> {{ line.descripcion | raw | nl2br }}
-                            </td>
-                            <td class="text-right">
-                                {{ fsc.divisaTools.format(line.pvpunitario) }}
-                            </td>
-                            <td class="text-right">
-                                {{ line.cantidad }}
-                            </td>
-                            <td class="text-right">
-                                {{ line.iva }} %
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="5" class="bg-warning">
-                                {{ i18n.trans('no-data') }}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="column col-10 col-xs-12">
+            <div class="panel">
+                <div class="panel-body">
+                    <br/>
+                    <div class="columns">
+                        <div class="column col">
+                            <h1 class="h3">
+                                {{ i18n.trans('order') }} {{ order.codigo }}
+                            </h1>
+                            <h2 class="h4">
+                                <i class="fas fa-map-marker fa-fw" aria-hidden="true"></i>
+                                {{ i18n.trans('billing-address') }}
+                            </h2>
+                            {{ order.nombrecliente }}, {{ i18n.trans('fiscal-number') }}: {{ order.cifnif }}<br/>
+                            {{ order.direccion }}, {{ order.codpostal }}, {{ order.apartado }}<br/>
+                            {{ order.ciudad }} ({{ order.provincia }})
+                        </div>
+                        <div class="column col text-right">
+                            {% if order.pagado %}
+                                <span class="h3">
+                                    {{ fsc.divisaTools.format(order.total) }}
+                                </span>
+                                <br/>
+                                <span class="label label-rounded label-success">
+                                    {{ i18n.trans('paid') }}
+                                </span>
+                            {% else %}
+                                <span class="h3">{{ fsc.divisaTools.format(order.total) }}</span>
+                                {{ fsc.getPaymentGatewayHtml() | raw }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="custom-scroll mb-2">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>{{ i18n.trans('product') }}</th>
+                                    <th class="text-right" style="min-width: 100px;">{{ i18n.trans('price') }}</th>
+                                    <th class="text-right">{{ i18n.trans('quantity') }}</th>
+                                    <th class="text-right">{{ i18n.trans('tax') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for line in order.getLines() %}
+                                    <tr>
+                                        <td>
+                                            <b>{{ line.referencia }}</b> {{ line.descripcion | raw | nl2br }}
+                                        </td>
+                                        <td class="text-right">
+                                            {{ fsc.divisaTools.format(line.pvpunitario) }}
+                                        </td>
+                                        <td class="text-right">
+                                            {{ line.cantidad }}
+                                        </td>
+                                        <td class="text-right">
+                                            {{ line.iva }} %
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="bg-warning">
+                                            {{ i18n.trans('no-data') }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <br/>
+                    <div class="custom-scroll mb-2">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>{{ i18n.trans('neto') }}</th>
+                                    <th class="text-right">{{ i18n.trans('taxes') }}</th>
+                                    <th class="text-right">{{ i18n.trans('surcharge') }}</th>
+                                    <th class="text-right">{{ i18n.trans('irpf') }}</th>
+                                    <th class="text-right">{{ i18n.trans('total') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        {{ fsc.divisaTools.format(order.neto) }}
+                                    </td>
+                                    <td class="text-right">
+                                        {{ fsc.divisaTools.format(order.totaliva) }}
+                                    </td>
+                                    <td class="text-right">
+                                        {{ fsc.divisaTools.format(order.totalre) }}
+                                    </td>
+                                    <td class="text-right">
+                                        {{ fsc.divisaTools.format(order.totalirpf) }}
+                                    </td>
+                                    <td class="text-right">
+                                        {{ fsc.divisaTools.format(order.total) }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
