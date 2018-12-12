@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : orderpayments.xml
+    Author     : Carlos Garcia Gomez
+    Description:
+        Structure for the orderpayments table.
+-->
+<table>
+    <column>
+        <name>amount</name>
+        <type>double precision</type>
+    </column>
+    <column>
+        <name>creationtime</name>
+        <type>timestamp</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>currency</name>
+        <type>character varying(4)</type>
+    </column>
+    <column>
+        <name>customid</name>
+        <type>character varying(30)</type>
+    </column>
+    <column>
+        <name>fee</name>
+        <type>double precision</type>
+    </column>
+    <column>
+        <name>id</name>
+        <type>serial</type>
+        <null>NO</null>
+        <default>nextval('orderpayments_id_seq'::regclass)</default>
+    </column>
+    <column>
+        <name>idpedido</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>platform</name>
+        <type>character varying(20)</type>
+    </column>
+    <column>
+        <name>status</name>
+        <type>character varying(20)</type>
+    </column>
+    <constraint>
+        <name>orderpayments_pkey</name>
+        <type>PRIMARY KEY (id)</type>
+    </constraint>
+    <constraint>
+        <name>ca_orderpayments_pedidoscli</name>
+        <type>FOREIGN KEY (idpedido) REFERENCES pedidoscli (idpedido) ON DELETE CASCADE ON UPDATE CASCADE</type>
+    </constraint>
+</table>

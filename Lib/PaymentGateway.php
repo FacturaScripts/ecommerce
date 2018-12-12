@@ -21,6 +21,7 @@ namespace FacturaScripts\Plugins\ecommerce\Lib;
 use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Base\Translator;
 use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Plugins\ecommerce\Model\OrderPayment;
 use Stripe\Stripe;
 use Stripe\Charge as StripeCharge;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,7 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Description of PaymentGateway
  *
- * @author carlos
+ * @author Carlos García Gómez <carlos@facturascripts.com>
  */
 class PaymentGateway
 {
@@ -52,7 +53,7 @@ class PaymentGateway
 
     /**
      * 
-     * @param Request $request
+     * @param Request       $request
      * @param SalesDocument $order
      *
      * @return bool
@@ -66,10 +67,23 @@ class PaymentGateway
                 'description' => $order->codigo,
                 'source' => $request->request->get('stripeToken')
         ]);
+
+        /// save payment
+        $orderPayment = new OrderPayment();
+        $orderPayment->amount = (float) $charge['amount'] / 100;
+        $orderPayment->currency = $charge['currency'];
+        $orderPayment->customid = $charge['id'];
+        $orderPayment->fee = (float) $charge['application_fee'];
+        $orderPayment->idpedido = $order->primaryColumnValue();
+        $orderPayment->platform = 'stripe';
+        $orderPayment->status = $charge['status'];
+        $orderPayment->save();
+
         if ($charge['status'] != 'succeeded') {
             return false;
         }
 
+        /// approve order
         $order->pagado = true;
         foreach ($order->getAvaliableStatus() as $status) {
             if ($status->generadoc == 'AlbaranCliente') {
