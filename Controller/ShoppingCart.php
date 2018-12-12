@@ -43,6 +43,12 @@ class ShoppingCart extends PortalController
 
     /**
      *
+     * @var BusinessDocumentTools
+     */
+    protected $docTools;
+
+    /**
+     *
      * @var PedidoCliente
      */
     public $pedidos = [];
@@ -57,6 +63,7 @@ class ShoppingCart extends PortalController
     {
         parent::__construct($cache, $i18n, $miniLog, $className, $uri);
         $this->divisaTools = new DivisaTools();
+        $this->docTools = new BusinessDocumentTools();
     }
 
     /**
@@ -105,21 +112,14 @@ class ShoppingCart extends PortalController
                 return true;
             }
 
-            $product = $variant->getProducto();
-            $newLine = $this->presupuesto->getNewLine();
-            $newLine->referencia = $variant->referencia;
-            $newLine->descripcion = $product->descripcion;
+            $newLine = $this->presupuesto->getNewProductLine($ref);
             $newLine->cantidad = 1;
-            $newLine->pvpunitario = $variant->precio;
-            $newLine->codimpuesto = $product->codimpuesto;
-            $newLine->iva = $product->getImpuesto()->iva;
             if (!$newLine->save()) {
                 $this->miniLog->error($this->i18n->trans('record-save-error'));
                 return false;
             }
 
-            $docTools = new BusinessDocumentTools();
-            $docTools->recalculate($this->presupuesto);
+            $this->docTools->recalculate($this->presupuesto);
             $this->presupuesto->save();
             $this->miniLog->notice($this->i18n->trans('record-updated-correctly'));
             return true;
@@ -167,8 +167,7 @@ class ShoppingCart extends PortalController
             }
 
             if ($line->delete()) {
-                $docTools = new BusinessDocumentTools();
-                $docTools->recalculate($this->presupuesto);
+                $this->docTools->recalculate($this->presupuesto);
                 $this->presupuesto->save();
 
                 $this->miniLog->notice($this->i18n->trans('record-deleted-correctly'));
@@ -193,8 +192,7 @@ class ShoppingCart extends PortalController
             $line->save();
         }
 
-        $docTools = new BusinessDocumentTools();
-        $docTools->recalculate($this->presupuesto);
+        $this->docTools->recalculate($this->presupuesto);
         if ($this->presupuesto->save()) {
             $this->miniLog->notice($this->i18n->trans('record-updated-correctly'));
             return true;
@@ -220,6 +218,9 @@ class ShoppingCart extends PortalController
             /// sets customer
             $cliente = $this->contact->getCustomer();
             $this->presupuesto->codcliente = $cliente->codcliente;
+
+            /// update totals
+            $this->docTools->recalculate($this->presupuesto);
 
             /// change status
             foreach ($this->presupuesto->getAvaliableStatus() as $status) {
