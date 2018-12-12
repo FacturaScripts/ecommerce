@@ -31,6 +31,11 @@
                                 <span class="label label-rounded label-success">
                                     {{ i18n.trans('paid') }}
                                 </span>
+                                <br/><br/>
+                                <a href="{{ order.url('public') }}&action=print" class="btn">
+                                    <i class="fas fa-print fa-fw" aria-hidden="true"></i>
+                                    {{ i18n.trans('print') }}
+                                </a>
                             {% else %}
                                 <span class="h3">{{ fsc.divisaTools.format(order.total) }}</span>
                                 {{ fsc.getPaymentGatewayHtml() | raw }}

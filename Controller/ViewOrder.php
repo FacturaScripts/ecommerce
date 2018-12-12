@@ -19,6 +19,7 @@
 namespace FacturaScripts\Plugins\ecommerce\Controller;
 
 use FacturaScripts\Core\Base\DivisaTools;
+use FacturaScripts\Dinamic\Lib\ExportManager;
 use FacturaScripts\Dinamic\Model\PedidoCliente;
 use FacturaScripts\Plugins\ecommerce\Lib\PaymentGateway;
 use FacturaScripts\Plugins\webportal\Lib\WebPortal\EditSectionController;
@@ -128,6 +129,10 @@ class ViewOrder extends EditSectionController
                 $this->payAction();
                 return true;
 
+            case 'print':
+                $this->printAction();
+                return true;
+
             default:
                 return parent::execPreviousAction($action);
         }
@@ -172,5 +177,14 @@ class ViewOrder extends EditSectionController
         }
 
         $this->miniLog->error($this->i18n->trans('record-save-error'));
+    }
+
+    protected function printAction()
+    {
+        $this->setTemplate(false);
+        $exportManager = new ExportManager();
+        $exportManager->newDoc($exportManager->defaultOption());
+        $exportManager->generateBusinessDocPage($this->getMainModel());
+        $exportManager->show($this->response);
     }
 }
