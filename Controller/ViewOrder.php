@@ -112,7 +112,6 @@ class ViewOrder extends EditSectionController
 
     protected function createSections()
     {
-        $this->fixedSection();
         $this->addHtmlSection('order', 'order', 'Section/Order', 'PedidoCliente', 'fas fa-shopping-cart');
     }
 
