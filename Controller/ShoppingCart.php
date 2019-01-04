@@ -217,7 +217,9 @@ class ShoppingCart extends PortalController
         if ($this->contact->save()) {
             /// sets customer
             $cliente = $this->contact->getCustomer();
-            $this->presupuesto->codcliente = $cliente->codcliente;
+            $cliente->razonsocial = empty($this->contact->empresa) ? $this->contact->fullName() : $this->contact->empresa;
+            $cliente->save();
+            $this->presupuesto->setSubject($cliente);
 
             /// update totals
             $this->docTools->recalculate($this->presupuesto);
