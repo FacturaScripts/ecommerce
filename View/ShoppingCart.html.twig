@@ -76,7 +76,7 @@
                         </td>
                         <td class="text-right">{{ fsc.divisaTools.format(line.pvpunitario) }}</td>
                         <td class="text-right">
-                            <input type="number" name="quantity_{{ line.idlinea }}" value="{{ line.cantidad }}" min="0" class="form-input" required=""/>
+                            <input type="number" name="quantity_{{ line.idlinea }}" value="{{ line.cantidad }}" min="0" class="form-input text-right" required=""/>
                         </td>
                         <td>
                             <a href="{{ fsc.url() }}?action=delete&idline={{ line.idlinea }}" class="btn btn-error" title="{{ i18n.trans('delete') }}">
