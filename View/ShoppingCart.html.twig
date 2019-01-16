@@ -9,6 +9,7 @@
                 <div class="column col-12">
                     <form action="{{ fsc.url() }}" method="post">
                         <input type="hidden" name="action" value="edit"/>
+                        <input type="hidden" name="redir"/>
                         <div class="panel mb-2">
                             <div class="panel-header">
                                 <div class="panel-title text-center">
@@ -16,9 +17,7 @@
                                     <p class="empty-title h5">{{ i18n.trans('shopping-cart') }}</p>
                                 </div>
                             </div>
-                            <div class="panel-body">
-                                {{ macros.orderLines(fsc, i18n) }}
-                            </div>
+                            {{ macros.orderLines(fsc, i18n) }}
                             <div class="panel-footer">
                                 <div class="columns">
                                     <div class="column col">
@@ -38,6 +37,8 @@
                             </div>
                         </div>
                     </form>
+                    {% block advertisement %}
+                    {% endblock %}
                     {% if fsc.pedidos %}
                         <div class="panel">
                             <div class="panel-header">
@@ -46,9 +47,7 @@
                                     <p class="empty-title h5">{{ i18n.trans('orders') }}</p>
                                 </div>
                             </div>
-                            <div class="panel-body">
-                                {{ macros.orderList(fsc, i18n) }}
-                            </div>
+                            {{ macros.orderList(fsc, i18n) }}
                         </div>
                     {% endif %}
                 </div>

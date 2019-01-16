@@ -76,6 +76,18 @@ class ShoppingCart extends PortalController
         return $pais->all([], ['nombre' => 'ASC'], 0, 0);
     }
 
+    /**
+     * 
+     * @return array
+     */
+    public function getPageData()
+    {
+        $data = parent::getPageData();
+        $data['title'] = 'shopping-cart';
+
+        return $data;
+    }
+
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
