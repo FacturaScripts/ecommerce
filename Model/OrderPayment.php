@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of ecommerce plugin for FacturaScripts.
- * Copyright (C) 2018 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2018-2019 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,6 +19,7 @@
 namespace FacturaScripts\Plugins\ecommerce\Model;
 
 use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Dinamic\Model\PedidoCliente;
 
 /**
  * Description of OrderPayment
@@ -93,6 +94,17 @@ class OrderPayment extends Base\ModelClass
 
     /**
      * 
+     * @return PedidoCliente
+     */
+    public function getOrder()
+    {
+        $order = new PedidoCliente();
+        $order->loadFromCode($this->idpedido);
+        return $order;
+    }
+
+    /**
+     * 
      * @return string
      */
     public static function primaryColumn()
@@ -107,5 +119,22 @@ class OrderPayment extends Base\ModelClass
     public static function tableName()
     {
         return 'orderpayments';
+    }
+
+    /**
+     * 
+     * @param string $type
+     * @param string $list
+     *
+     * @return string
+     */
+    public function url(string $type = 'auto', string $list = 'List')
+    {
+        if ($type != 'list') {
+            $order = $this->getOrder();
+            return $order->url();
+        }
+
+        return parent::url($type, $list);
     }
 }

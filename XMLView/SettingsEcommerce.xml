@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
  * This file is part of CommunityFS plugin for FacturaScripts.
- * Copyright (C) 2018 Carlos Garcia Gomez  <carlos@facturascripts.com>
+ * Copyright (C) 2018-2019 Carlos Garcia Gomez  <carlos@facturascripts.com>
 -->
-
 <view>
     <columns>
         <group name="default" icon="fas fa-shopping-cart" numcolumns="12">
@@ -11,11 +10,32 @@
                 <widget type="text" fieldname="name" readonly="true" required="true" />
             </column>
         </group>
+        <group name="paypal" icon="fab fa-paypal" title="paypal" numcolumns="12">
+            <column name="payment-method" numcolumns="4" order="100">
+                <widget type="select" fieldname="paypalcodpago" onclick="EditFormaPago" required="true">
+                    <values source="formaspago" fieldcode="codpago" fieldtitle="descripcion"></values>
+                </widget>
+            </column>
+            <column name="public-key" numcolumns="4" order="110">
+                <widget type="text" fieldname="paypalpk" icon="fas fa-key" />
+            </column>
+            <column name="private-key" numcolumns="4" order="120">
+                <widget type="text" fieldname="paypalsk" icon="fas fa-key" />
+            </column>
+            <column name="sandbox-mode" order="130">
+                <widget type="checkbox" fieldname="paypalsandbox" />
+            </column>
+        </group>
         <group name="stripe" icon="far fa-credit-card" title="stripe" numcolumns="12">
-            <column name="public-key" numcolumns="6" order="100">
+            <column name="payment-method" numcolumns="4" order="100">
+                <widget type="select" fieldname="stripecodpago" onclick="EditFormaPago" required="true">
+                    <values source="formaspago" fieldcode="codpago" fieldtitle="descripcion"></values>
+                </widget>
+            </column>
+            <column name="public-key" numcolumns="4" order="110">
                 <widget type="text" fieldname="stripepk" icon="fas fa-key" />
             </column>
-            <column name="private-key" numcolumns="6" order="110">
+            <column name="private-key" numcolumns="4" order="120">
                 <widget type="text" fieldname="stripesk" icon="fas fa-key" />
             </column>
         </group>

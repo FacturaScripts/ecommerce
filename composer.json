@@ -3,12 +3,12 @@
     "description": "Description of project ecommerce.",
     "authors": [
         {
-            "name": "carlos",
-            "email": "your@email.here"
+            "name": "Carlos Garcia Gomez",
+            "email": "carlos@facturascripts.com"
         }
     ],
     "require": {
-        "stripe/stripe-php": "v6.24.0",
-        "paypal/rest-api-sdk-php": "1.13.0"
+        "stripe/stripe-php": "v6.*",
+        "paypal/paypal-checkout-sdk": "1.0.0"
     }
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of ecommerce plugin for FacturaScripts.
- * Copyright (C) 2018 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2018-2019 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -22,6 +22,10 @@ use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Base\Translator;
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Plugins\ecommerce\Model\OrderPayment;
+use PayPalCheckoutSdk\Core\PayPalHttpClient;
+use PayPalCheckoutSdk\Core\ProductionEnvironment;
+use PayPalCheckoutSdk\Core\SandboxEnvironment;
+use PayPalCheckoutSdk\Orders\OrdersGetRequest;
 use Stripe\Stripe;
 use Stripe\Charge as StripeCharge;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,7 +52,35 @@ class PaymentGateway
             return '';
         }
 
-        return $this->getStripeHtml($url, $order, $email);
+        $html = '';
+        if ($this->isEnabled('paypal')) {
+            $html .= $this->getPaypalHtml($url, $order);
+        }
+
+        if ($this->isEnabled('stripe')) {
+            $html .= $this->getStripeHtml($url, $order, $email);
+        }
+
+        return $html;
+    }
+
+    /**
+     * 
+     * @param string $platform
+     *
+     * @return bool
+     */
+    public function isEnabled($platform)
+    {
+        switch ($platform) {
+            case 'paypal':
+                return !empty(AppSettings::get('ecommerce', 'paypalsk'));
+
+            case 'stripe':
+                return !empty(AppSettings::get('ecommerce', 'stripesk'));
+        }
+
+        return false;
     }
 
     /**
@@ -58,31 +90,27 @@ class PaymentGateway
      *
      * @return bool
      */
-    public function payAction($request, $order)
+    public function payAction($request, &$order)
     {
-        Stripe::setApiKey(AppSettings::get('ecommerce', 'stripesk'));
-        $charge = StripeCharge::create([
-                'amount' => $order->total * 100,
-                'currency' => $order->coddivisa,
-                'description' => $order->codigo,
-                'source' => $request->request->get('stripeToken')
-        ]);
+        switch ($request->get('platform')) {
+            case 'paypal':
+                return $this->payActionPaypal($request, $order);
 
-        /// save payment
-        $orderPayment = new OrderPayment();
-        $orderPayment->amount = (float) $charge['amount'] / 100;
-        $orderPayment->currency = $charge['currency'];
-        $orderPayment->customid = $charge['id'];
-        $orderPayment->fee = (float) $charge['application_fee'];
-        $orderPayment->idpedido = $order->primaryColumnValue();
-        $orderPayment->platform = 'stripe';
-        $orderPayment->status = $charge['status'];
-        $orderPayment->save();
-
-        if ($charge['status'] != 'succeeded') {
-            return false;
+            case 'stripe':
+                return $this->payActionStripe($request, $order);
         }
 
+        return false;
+    }
+
+    /**
+     * 
+     * @param SalesDocument $order
+     *
+     * @return bool
+     */
+    protected function approveOrder(&$order)
+    {
         /// approve order
         $order->pagado = true;
         foreach ($order->getAvaliableStatus() as $status) {
@@ -91,7 +119,55 @@ class PaymentGateway
                 break;
             }
         }
+
         return $order->save();
+    }
+
+    /**
+     * 
+     * @return SandboxEnvironment|ProductionEnvironment
+     */
+    protected function getPaypalEnvironment()
+    {
+        $clientId = AppSettings::get('ecommerce', 'paypalpk');
+        $clientSecret = AppSettings::get('ecommerce', 'paypalsk');
+        if (AppSettings::get('ecommerce', 'paypalsandbox') === true) {
+            return new SandboxEnvironment($clientId, $clientSecret);
+        }
+
+        return new ProductionEnvironment($clientId, $clientSecret);
+    }
+
+    /**
+     * 
+     * @param string        $url
+     * @param SalesDocument $order
+     *
+     * @return string
+     */
+    protected function getPaypalHtml($url, $order)
+    {
+        $paypalLink = 'https://www.paypal.com/sdk/js?client-id=' . AppSettings::get('ecommerce', 'paypalpk', '')
+            . '&currency=' . $order->coddivisa;
+
+        return '<script src="' . $paypalLink . '"></script>
+<div id="paypal-button-container"></div>
+<script>paypal.Buttons({
+    createOrder: function(data, actions) {
+      return actions.order.create({
+        purchase_units: [{
+          amount: {
+            value: \'' . $order->total . '\'
+          }
+        }]
+      });
+    },
+    onApprove: function(data, actions) {
+      return actions.order.capture().then(function(details) {
+        window.location.replace(\'' . $url . '&platform=paypal&orderID=\' + data.orderID);
+      });
+    }
+  }).render(\'#paypal-button-container\');</script><br/>';
     }
 
     /**
@@ -106,11 +182,8 @@ class PaymentGateway
     {
         $i18n = new Translator();
         $publicKey = AppSettings::get('ecommerce', 'stripepk');
-        if (empty($publicKey)) {
-            return '';
-        }
 
-        return '<form action="' . $url . '" method="post">
+        return '<form action="' . $url . '&platform=stripe" method="post">
   <script
     src="https://checkout.stripe.com/checkout.js" class="stripe-button"
     data-key="' . $publicKey . '"
@@ -124,6 +197,65 @@ class PaymentGateway
     data-zip-code="true"
     data-currency="' . $order->coddivisa . '">
   </script>
-</form>';
+</form><br/>';
+    }
+
+    /**
+     * 
+     * @param Request       $request
+     * @param SalesDocument $order
+     *
+     * @return bool
+     */
+    protected function payActionPaypal($request, &$order)
+    {
+        $environment = $this->getPaypalEnvironment();
+        $client = new PayPalHttpClient($environment);
+
+        $orderID = $request->get('orderID', '');
+        $response = $client->execute(new OrdersGetRequest($orderID));
+
+        /// save payment
+        $orderPayment = new OrderPayment();
+        $orderPayment->amount = (float) $response->result->purchase_units[0]->amount->value;
+        $orderPayment->currency = $response->result->purchase_units[0]->amount->currency_code;
+        $orderPayment->customid = $orderID;
+        $orderPayment->fee = (float) $response->result->purchase_units[0]->payments->captures[0]->seller_receivable_breakdown->paypal_fee->value;
+        $orderPayment->idpedido = $order->primaryColumnValue();
+        $orderPayment->platform = 'paypal';
+        $orderPayment->status = $response->result->status;
+        $orderPayment->save();
+
+        return ($response->result->status == 'COMPLETED') ? $this->approveOrder($order) : false;
+    }
+
+    /**
+     * 
+     * @param Request       $request
+     * @param SalesDocument $order
+     *
+     * @return bool
+     */
+    protected function payActionStripe($request, &$order)
+    {
+        Stripe::setApiKey(AppSettings::get('ecommerce', 'stripesk'));
+        $charge = StripeCharge::create([
+                'amount' => $order->total * 100,
+                'currency' => $order->coddivisa,
+                'description' => $order->codigo,
+                'source' => $request->request->get('stripeToken')
+        ]);
+
+        /// save payment
+        $orderPayment = new OrderPayment();
+        $orderPayment->amount = (float) $charge['amount'] / 100;
+        $orderPayment->currency = $charge['currency'];
+        $orderPayment->customid = $charge['id'];
+        $orderPayment->idpedido = $order->primaryColumnValue();
+        $orderPayment->platform = 'stripe';
+        $orderPayment->status = $charge['status'];
+        $orderPayment->save();
+
+        return ($charge['status'] == 'succeeded') ? $this->approveOrder($order) : false;
     }
 }
