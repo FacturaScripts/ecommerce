@@ -253,7 +253,8 @@ class PaymentGateway
                 'amount' => $order->total * 100,
                 'currency' => $order->coddivisa,
                 'description' => $order->codigo,
-                'source' => $request->request->get('stripeToken')
+                'source' => $request->request->get('stripeToken'),
+                'expand' => ['balance_transaction']
         ]);
 
         /// save payment
@@ -261,6 +262,7 @@ class PaymentGateway
         $orderPayment->amount = (float) $charge['amount'] / 100;
         $orderPayment->currency = $charge['currency'];
         $orderPayment->customid = $charge['id'];
+        $orderPayment->fee = (float) $charge['balance_transaction']->fee / 100;
         $orderPayment->idpedido = $order->primaryColumnValue();
         $orderPayment->platform = 'stripe';
         $orderPayment->status = $charge['status'];
