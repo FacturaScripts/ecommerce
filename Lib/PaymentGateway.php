@@ -226,7 +226,17 @@ class PaymentGateway
         $orderPayment->status = $response->result->status;
         $orderPayment->save();
 
-        return ($response->result->status == 'COMPLETED') ? $this->approveOrder($order) : false;
+        if ($response->result->status != 'COMPLETED') {
+            return false;
+        }
+
+        /// we must prevent from advanced users that changes data in javascript calls
+        if ($orderPayment->amount >= $order->total && strtolower($orderPayment->currency) == strtolower($order->coddivisa)) {
+            $order->codpago = AppSettings::get('ecommerce', 'paypalcodpago');
+            return $this->approveOrder($order);
+        }
+
+        return false;
     }
 
     /**
@@ -256,6 +266,7 @@ class PaymentGateway
         $orderPayment->status = $charge['status'];
         $orderPayment->save();
 
+        $order->codpago = AppSettings::get('ecommerce', 'stripecodpago');
         return ($charge['status'] == 'succeeded') ? $this->approveOrder($order) : false;
     }
 }
