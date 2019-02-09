@@ -29,10 +29,16 @@ use FacturaScripts\Core\Controller\EditPedidoCliente as ParentController;
 class EditPedidoCliente extends ParentController
 {
 
+    protected function createViewOrderPayments($name = 'ListOrderPayment')
+    {
+        $this->addListView($name, 'OrderPayment', 'payments', 'fas fa-credit-card');
+        $this->setSettings($name, 'btnNew', false);
+    }
+
     protected function createViews()
     {
         parent::createViews();
-        $this->addListView('ListOrderPayment', 'OrderPayment', 'payments', 'fas fa-credit-card');
+        $this->createViewOrderPayments();
     }
 
     protected function loadData($viewName, $view)

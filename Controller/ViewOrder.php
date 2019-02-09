@@ -132,10 +132,9 @@ class ViewOrder extends EditSectionController
             case 'print':
                 $this->printAction();
                 return true;
-
-            default:
-                return parent::execPreviousAction($action);
         }
+
+        return parent::execPreviousAction($action);
     }
 
     protected function loadData(string $sectionName)
@@ -170,6 +169,10 @@ class ViewOrder extends EditSectionController
     protected function payAction()
     {
         $order = $this->getMainModel();
+        if ($order->pagado) {
+            return;
+        }
+
         if ($this->paymentGateway->payAction($this->request, $order)) {
             $this->miniLog->notice($this->i18n->trans('record-updated-correctly'));
             $this->getMainModel(true);
