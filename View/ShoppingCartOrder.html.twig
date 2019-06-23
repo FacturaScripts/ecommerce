@@ -42,11 +42,11 @@
                                     </div>
                                     <div class="column col-3 mb-2">
                                         {{ i18n.trans('zip-code') }}:
-                                        <input type="text" name="codpostal" value="{{ fsc.presupuesto.codpostal }}" class="form-input" required=""/>
+                                        <input type="text" name="codpostal" value="{{ fsc.presupuesto.codpostal }}" maxlength="10" class="form-input" required=""/>
                                     </div>
                                     <div class="column col-3 mb-2">
                                         {{ i18n.trans('postalmail') }}:
-                                        <input type="text" name="apartado" value="{{ fsc.presupuesto.apartado }}" class="form-input" placeholder="{{ i18n.trans('optional') }}"/>
+                                        <input type="text" name="apartado" value="{{ fsc.presupuesto.apartado }}" maxlength="10" class="form-input" placeholder="{{ i18n.trans('optional') }}"/>
                                     </div>
                                 </div>
                                 <div class="columns">
