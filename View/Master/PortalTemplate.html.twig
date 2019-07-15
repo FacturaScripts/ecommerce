@@ -1,0 +1,9 @@
+{% extends "@Pluginwebportal/Master/PortalTemplate.html.twig" %}
+
+{% block navbarButtons %}
+    <a href="{{ constant('FS_ROUTE') }}/ShoppingCart" class="btn">
+        <i class="fas fa-shopping-cart"></i>
+    </a>
+    &nbsp;
+    {{ parent() }}
+{% endblock %}
