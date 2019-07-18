@@ -24,15 +24,17 @@
                                         <b>{{ i18n.trans('net') }}</b>:
                                         {{ fsc.divisaTools.format(fsc.presupuesto.neto) }}
                                     </div>
-                                    <div class="column col text-right">
-                                        <button type="submit" class="btn">
-                                            {{ i18n.trans('save') }}
-                                        </button>
-                                        <button type="button" class="btn btn-success" onclick="this.form.action.value = 'order';
-                                                this.form.submit();">
-                                            {{ i18n.trans('finalize') }}
-                                        </button>
-                                    </div>
+                                    {% if fsc.presupuesto.getLines() | length > 0 %}
+                                        <div class="column col-8 text-right">
+                                            <button type="submit" class="btn">
+                                                {{ i18n.trans('save') }}
+                                            </button>
+                                            <button type="button" class="btn btn-success" onclick="this.form.action.value = 'order';
+                                                    this.form.submit();">
+                                                {{ i18n.trans('finalize') }}
+                                            </button>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
