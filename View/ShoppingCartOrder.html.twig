@@ -18,47 +18,47 @@
                             </div>
                             <div class="panel-body">
                                 <div class="columns">
-                                    <div class="column col mb-2">
+                                    <div class="column col-sm-12 mb-2">
                                         {{ i18n.trans('name') }}:
                                         <input type="text" name="nombre" value="{{ fsc.contact.nombre }}" class="form-input" required="true"/>
                                     </div>
-                                    <div class="column col mb-2">
+                                    <div class="column col-sm-12 mb-2">
                                         {{ i18n.trans('surname') }}:
                                         <input type="text" name="apellidos" value="{{ fsc.contact.apellidos }}" class="form-input"/>
                                     </div>
-                                    <div class="column col mb-2">
+                                    <div class="column col-sm-12 mb-2">
                                         {{ i18n.trans('company') }}:
                                         <input type="text" name="empresa" value="{{ fsc.contact.empresa }}" class="form-input" placeholder="{{ i18n.trans('optional') }}"/>
                                     </div>
-                                    <div class="column col mb-2">
+                                    <div class="column col-sm-12 mb-2">
                                         {{ i18n.trans('fiscal-number') }}:
                                         <input type="text" name="cifnif" value="{{ fsc.contact.cifnif }}" class="form-input"/>
                                     </div>
                                 </div>
                                 <div class="columns">
-                                    <div class="column col mb-2">
+                                    <div class="column col-sm-12 mb-2">
                                         {{ i18n.trans('address') }}:
                                         <input type="text" name="direccion" value="{{ fsc.presupuesto.direccion }}" class="form-input" required=""/>
                                     </div>
-                                    <div class="column col-3 mb-2">
+                                    <div class="column col-3 col-sm-12 mb-2">
                                         {{ i18n.trans('zip-code') }}:
                                         <input type="text" name="codpostal" value="{{ fsc.presupuesto.codpostal }}" maxlength="10" class="form-input" required=""/>
                                     </div>
-                                    <div class="column col-3 mb-2">
+                                    <div class="column col-3 col-sm-12 mb-2">
                                         {{ i18n.trans('postalmail') }}:
                                         <input type="text" name="apartado" value="{{ fsc.presupuesto.apartado }}" maxlength="10" class="form-input" placeholder="{{ i18n.trans('optional') }}"/>
                                     </div>
                                 </div>
                                 <div class="columns">
-                                    <div class="column col mb-2">
+                                    <div class="column col-sm-12 mb-2">
                                         {{ i18n.trans('city') }}:
                                         <input type="text" name="ciudad" value="{{ fsc.presupuesto.ciudad }}" class="form-input" required=""/>
                                     </div>
-                                    <div class="column col mb-2">
+                                    <div class="column col-sm-12 mb-2">
                                         {{ i18n.trans('province') }}:
                                         <input type="text" name="provincia" value="{{ fsc.presupuesto.provincia }}" class="form-input" required=""/>
                                     </div>
-                                    <div class="column col mb-2">
+                                    <div class="column col-sm-12 mb-2">
                                         {{ i18n.trans('country') }}:
                                         <select name="codpais" class="form-select" required="">
                                             {% for pais in fsc.getCountries() %}

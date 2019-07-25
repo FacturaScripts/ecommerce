@@ -11,13 +11,24 @@
                         <input type="hidden" name="action" value="edit"/>
                         <input type="hidden" name="redir"/>
                         <div class="panel mb-2">
-                            <div class="panel-header">
-                                <div class="panel-title text-center">
-                                    <i class="fas fa-shopping-cart fa-3x" aria-hidden="true"></i>
-                                    <p class="empty-title h5">{{ i18n.trans('shopping-cart') }}</p>
-                                </div>
+                            <div class="panel-nav">
+                                <ul class="tab tab-block">
+                                    <li class="tab-item">
+                                        <a href="#" id="tabShoppingCart" class="section-tab active" onclick="return showSection('ShoppingCart');">
+                                            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                                            {{ i18n.trans('shopping-cart') }}
+                                        </a>
+                                    </li>
+                                    <li class="tab-item">
+                                        <a href="#" id="tabOrders" class="section-tab" onclick="return showSection('Orders');">
+                                            <i class="far fa-calendar-alt" aria-hidden="true"></i>
+                                            {{ i18n.trans('orders') }}
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
                             {{ macros.orderLines(fsc, i18n) }}
+                            {{ macros.orderList(fsc, i18n) }}
                             <div class="panel-footer">
                                 <div class="columns">
                                     <div class="column col">
@@ -41,25 +52,31 @@
                     </form>
                     {% block advertisement %}
                     {% endblock %}
-                    {% if fsc.pedidos %}
-                        <div class="panel">
-                            <div class="panel-header">
-                                <div class="panel-title text-center">
-                                    <i class="far fa-calendar-alt fa-2x" aria-hidden="true"></i>
-                                    <p class="empty-title h5">{{ i18n.trans('orders') }}</p>
-                                </div>
-                            </div>
-                            {{ macros.orderList(fsc, i18n) }}
-                        </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 {% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('node_modules/jquery/dist/jquery.min.js') }}">
+    </script>
+    <script>
+        function showSection(name) {
+            $(".section-tab").removeClass("active");
+            $("#tab" + name).addClass("active");
+
+            $(".section-div").removeClass("d-hide");
+            $(".section-div").addClass("d-hide");
+            $("#div" + name).removeClass("d-hide");
+            return false;
+        }
+    </script>
+{% endblock %}
+
 {% macro orderLines(fsc, i18n) %}
-    <div class="custom-scroll mb-2">
+    <div id="divShoppingCart" class="custom-scroll mb-2 section-div">
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
@@ -98,7 +115,7 @@
 {% endmacro %}
 
 {% macro orderList(fsc, i18n) %}
-    <div class="custom-scroll mb-2">
+    <div id="divOrders" class="custom-scroll d-hide mb-2 section-div">
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
