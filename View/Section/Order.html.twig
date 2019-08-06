@@ -5,22 +5,30 @@
         <div class="column col-2 col-xs-12">
             <div class="panel mb-2">
                 <div class="panel-header text-right">
-                    {% if order.pagado %}
-                        <span class="h3">
+                    {% if order.editable %}
+                        <div class="h3">
                             {{ fsc.divisaTools.format(order.total) }}
+                        </div>
+                        {{ fsc.getPaymentGatewayHtml() | raw }}
+                    {% elseif order.getStatus().generadoc is empty %}
+                        <div class="h3">
+                            {{ fsc.divisaTools.format(order.total) }}
+                        </div>
+                        <span class="label label-rounded label-error">
+                            {{ order.getStatus().nombre }}
                         </span>
-                        <br/>
+                    {% else %}
+                        <div class="h3">
+                            {{ fsc.divisaTools.format(order.total) }}
+                        </div>
                         <span class="label label-rounded label-success">
-                            {{ i18n.trans('paid') }}
+                            {{ order.getStatus().nombre }}
                         </span>
                         <br/><br/>
-                        <a href="{{ order.url('public') }}&action=print" class="btn">
+                        <a href="{{ order.url('public') }}&action=print" target="_blank" class="btn">
                             <i class="fas fa-print fa-fw" aria-hidden="true"></i>
                             {{ i18n.trans('print') }}
                         </a>
-                    {% else %}
-                        <span class="h3">{{ fsc.divisaTools.format(order.total) }}</span>
-                        {{ fsc.getPaymentGatewayHtml() | raw }}
                     {% endif %}
                 </div>
                 <div class="panel-body bg-gray">

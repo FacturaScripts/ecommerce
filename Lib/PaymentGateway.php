@@ -112,9 +112,8 @@ class PaymentGateway
     protected function approveOrder(&$order)
     {
         /// approve order
-        $order->pagado = true;
         foreach ($order->getAvaliableStatus() as $status) {
-            if ($status->generadoc == 'AlbaranCliente') {
+            if (!empty($status->generadoc)) {
                 $order->idestado = $status->idestado;
                 break;
             }

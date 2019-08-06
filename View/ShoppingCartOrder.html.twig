@@ -3,7 +3,6 @@
 {% block body %}
     {% import _self as macros %}
     <div class="body-section">
-        <br/>
         <div class="container grid-lg">
             <div class="columns">
                 <div class="column col-12">
@@ -26,9 +25,23 @@
                                         {{ i18n.trans('surname') }}:
                                         <input type="text" name="apellidos" value="{{ fsc.contact.apellidos }}" class="form-input"/>
                                     </div>
+                                </div>
+                                <div class="columns">
                                     <div class="column col-sm-12 mb-2">
                                         {{ i18n.trans('company') }}:
                                         <input type="text" name="empresa" value="{{ fsc.contact.empresa }}" class="form-input" placeholder="{{ i18n.trans('optional') }}"/>
+                                    </div>
+                                    <div class="column col-sm-12 mb-2">
+                                        {{ i18n.trans('fiscal-id') }}
+                                        <select class="form-select" name="tipoidfiscal">
+                                            {% for tipo in fsc.codeModel.all('IdentificadorFiscal', '', '') %} 
+                                                {% if tipo.code == fsc.contact.tipoidfiscal %}
+                                                    <option value="{{ tipo.code }}" selected="">{{ tipo.description }}</option>
+                                                {% else %}
+                                                    <option value="{{ tipo.code }}">{{ tipo.description }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
                                     </div>
                                     <div class="column col-sm-12 mb-2">
                                         {{ i18n.trans('fiscal-number') }}:
@@ -38,11 +51,11 @@
                                 <div class="columns">
                                     <div class="column col-sm-12 mb-2">
                                         {{ i18n.trans('address') }}:
-                                        <input type="text" name="direccion" value="{{ fsc.presupuesto.direccion }}" class="form-input" required=""/>
+                                        <input type="text" name="direccion" value="{{ fsc.presupuesto.direccion }}" class="form-input" />
                                     </div>
                                     <div class="column col-3 col-sm-12 mb-2">
                                         {{ i18n.trans('zip-code') }}:
-                                        <input type="text" name="codpostal" value="{{ fsc.presupuesto.codpostal }}" maxlength="10" class="form-input" required=""/>
+                                        <input type="text" name="codpostal" value="{{ fsc.presupuesto.codpostal }}" maxlength="10" class="form-input" />
                                     </div>
                                     <div class="column col-3 col-sm-12 mb-2">
                                         {{ i18n.trans('postalmail') }}:
@@ -61,11 +74,11 @@
                                     <div class="column col-sm-12 mb-2">
                                         {{ i18n.trans('country') }}:
                                         <select name="codpais" class="form-select" required="">
-                                            {% for pais in fsc.getCountries() %}
-                                                {% if pais.codpais == fsc.presupuesto.codpais or pais.codiso == fsc.presupuesto.codpais %}
-                                                    <option value="{{ pais.codpais }}" selected="">{{ pais.nombre }}</option>
+                                            {% for pais in fsc.codeModel.all('Pais', '', '') %} 
+                                                {% if pais.code == fsc.contact.codpais %}
+                                                    <option value="{{ pais.code }}" selected="">{{ pais.description }}</option>
                                                 {% else %}
-                                                    <option value="{{ pais.codpais }}">{{ pais.nombre }}</option>
+                                                    <option value="{{ pais.code }}">{{ pais.description }}</option>
                                                 {% endif %}
                                             {% endfor %}
                                         </select>

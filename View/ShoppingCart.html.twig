@@ -3,7 +3,6 @@
 {% block body %}
     {% import _self as macros %}
     <div class="body-section">
-        <br/>
         <div class="container grid-lg">
             <div class="columns">
                 <div class="column col-12">
@@ -72,6 +71,25 @@
             $("#div" + name).removeClass("d-hide");
             return false;
         }
+        $(document).ready(function () {
+            $(".clickableRow").mousedown(function (event) {
+                if (event.which === 1) {
+                    var href = $(this).attr("data-href");
+                    var target = $(this).attr("data-target");
+                    if (typeof href !== typeof undefined && href !== false) {
+                        if (typeof target !== typeof undefined && target === "_blank") {
+                            window.open($(this).attr("data-href"));
+                        } else {
+                            parent.document.location = $(this).attr("data-href");
+                        }
+                    }
+                }
+            });
+            $(".cancelClickable").mousedown(function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+        });
     </script>
 {% endblock %}
 
@@ -104,7 +122,7 @@
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="5" class="bg-warning">
+                        <td colspan="4" class="bg-warning">
                             {{ i18n.trans('no-data') }}
                         </td>
                     </tr>
@@ -126,11 +144,9 @@
             </thead>
             <tbody>
                 {% for order in fsc.pedidos %}
-                    <tr>
+                    <tr class="clickableRow c-hand" data-href="{{ asset(order.url('public')) }}">
                         <td>
-                            <a href="{{ asset(order.url('public')) }}">
-                                {{ order.fecha }} {{ order.hora }}
-                            </a>
+                            {{ order.fecha }} {{ order.hora }}
                         </td>
                         <td class="text-right">
                             {{ order.getStatus().nombre }}
@@ -141,7 +157,7 @@
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="5" class="bg-warning">
+                        <td colspan="3" class="bg-warning">
                             {{ i18n.trans('no-data') }}
                         </td>
                     </tr>

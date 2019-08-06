@@ -21,7 +21,7 @@ namespace FacturaScripts\Plugins\ecommerce\Controller;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\DivisaTools;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
-use FacturaScripts\Dinamic\Model\Pais;
+use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\PedidoCliente;
 use FacturaScripts\Dinamic\Model\PresupuestoCliente;
 use FacturaScripts\Dinamic\Model\Variante;
@@ -34,6 +34,12 @@ use FacturaScripts\Plugins\webportal\Lib\WebPortal\PortalController;
  */
 class ShoppingCart extends PortalController
 {
+
+    /**
+     *
+     * @var CodeModel
+     */
+    public $codeModel;
 
     /**
      *
@@ -62,18 +68,9 @@ class ShoppingCart extends PortalController
     public function __construct(&$cache, &$i18n, &$miniLog, $className, $uri = '')
     {
         parent::__construct($cache, $i18n, $miniLog, $className, $uri);
+        $this->codeModel = new CodeModel();
         $this->divisaTools = new DivisaTools();
         $this->docTools = new BusinessDocumentTools();
-    }
-
-    /**
-     * 
-     * @return Pais[]
-     */
-    public function getCountries()
-    {
-        $pais = new Pais();
-        return $pais->all([], ['nombre' => 'ASC'], 0, 0);
     }
 
     /**
@@ -84,7 +81,6 @@ class ShoppingCart extends PortalController
     {
         $data = parent::getPageData();
         $data['title'] = 'shopping-cart';
-
         return $data;
     }
 
@@ -193,8 +189,14 @@ class ShoppingCart extends PortalController
 
     protected function editAction()
     {
+        $changes = false;
         foreach ($this->presupuesto->getLines() as $line) {
             $cantidad = (int) $this->request->request->get('quantity_' . $line->idlinea, '0');
+
+            if ($cantidad != $line->cantidad) {
+                $changes = true;
+            }
+
             if ($cantidad <= 0) {
                 $line->delete();
                 continue;
@@ -206,7 +208,9 @@ class ShoppingCart extends PortalController
 
         $this->docTools->recalculate($this->presupuesto);
         if ($this->presupuesto->save()) {
-            $this->miniLog->notice($this->i18n->trans('record-updated-correctly'));
+            if ($changes) {
+                $this->miniLog->notice($this->i18n->trans('record-updated-correctly'));
+            }
             return true;
         }
 
@@ -219,6 +223,7 @@ class ShoppingCart extends PortalController
         $this->contact->nombre = $this->request->request->get('nombre', '');
         $this->contact->apellidos = $this->request->request->get('apellidos', '');
         $this->contact->empresa = $this->request->request->get('empresa', '');
+        $this->contact->tipoidfiscal = $this->request->request->get('tipoidfiscal', '');
 
         $fields = ['cifnif', 'direccion', 'codpostal', 'apartado', 'direccion', 'ciudad', 'provincia', 'codpais'];
         foreach ($fields as $field) {

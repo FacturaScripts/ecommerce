@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of FacturaScripts
+ * Copyright (C) 2017-2019 Carlos Garcia Gomez <carlos@facturascripts.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Carlos García Gómez <carlos@facturascripts.com>  
+-->
+<view>
+    <columns>
+        <column name="code" order="100">
+            <widget type="text" fieldname="codigo" />
+        </column>
+        <column name="observations" order="110">
+            <widget type="textarea" fieldname="observaciones" />
+        </column>
+        <column name="status" display="right" order="120">
+            <widget type="autocomplete" fieldname="idestado">
+                <values source="estados_documentos" fieldcode="idestado" fieldtitle="nombre"></values>
+            </widget>
+        </column>
+        <column name="amount" display="right" order="130">
+            <widget type="money" fieldname="total">
+                <option color="danger">lt:0</option>
+            </widget>
+        </column>
+        <column name="date" display="right" order="140">
+            <widget type="date" fieldname="fecha" />
+        </column>
+        <column name="hour" display="right" order="150">
+            <widget type="text" fieldname="hora" />
+        </column>
+    </columns>
+</view>

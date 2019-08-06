@@ -169,7 +169,7 @@ class ViewOrder extends EditSectionController
     protected function payAction()
     {
         $order = $this->getMainModel();
-        if ($order->pagado) {
+        if ($order->editable == false) {
             return;
         }
 
