@@ -106,6 +106,10 @@ class ShoppingCart extends PortalController
         $this->commonCore();
     }
 
+    /**
+     * 
+     * @return bool
+     */
     protected function addProduct()
     {
         if (!$this->presupuesto->exists()) {
@@ -137,6 +141,27 @@ class ShoppingCart extends PortalController
         return false;
     }
 
+    /**
+     * Check if the client has accepted the terms and conditions and the privacy policy.
+     * 
+     * @return bool
+     */
+    protected function checkTerms()
+    {
+        if (!$this->contact->aceptaprivacidad && 'true' !== $this->request->request->get('privacy')) {
+            $this->miniLog->warning($this->i18n->trans('you-must-accept-privacy-policy'));
+            return false;
+        }
+
+        if ('true' !== $this->request->request->get('terms')) {
+            $this->miniLog->warning($this->i18n->trans('you-must-accept-terms'));
+            return false;
+        }
+
+        $this->contact->aceptaprivacidad = true;
+        return true;
+    }
+
     protected function commonCore()
     {
         $this->setTemplate('ShoppingCart');
@@ -156,7 +181,7 @@ class ShoppingCart extends PortalController
 
             case 'finalize':
                 $this->setTemplate('ShoppingCartOrder');
-                return $this->finalizeAction();
+                return $this->checkTerms() && $this->finalizeAction();
 
             case 'order':
                 if ($this->editAction() && count($this->presupuesto->getLines()) > 0) {
@@ -166,6 +191,10 @@ class ShoppingCart extends PortalController
         }
     }
 
+    /**
+     * 
+     * @return bool
+     */
     protected function deleteLine()
     {
         $idlinea = $this->request->get('idline', '');
@@ -187,6 +216,10 @@ class ShoppingCart extends PortalController
         return false;
     }
 
+    /**
+     * 
+     * @return bool
+     */
     protected function editAction()
     {
         $changes = false;
@@ -218,6 +251,10 @@ class ShoppingCart extends PortalController
         return false;
     }
 
+    /**
+     * 
+     * @return bool
+     */
     protected function finalizeAction()
     {
         $this->contact->nombre = $this->request->request->get('nombre', '');
@@ -255,7 +292,7 @@ class ShoppingCart extends PortalController
 
                 /// redir to new order
                 foreach ($this->presupuesto->childrenDocuments() as $order) {
-                    $this->response->headers->set('Refresh', '0; ' . $order->url('public'));
+                    $this->redirect($order->url('public'));
                     return true;
                 }
             }

@@ -87,7 +87,31 @@
                             </div>
                             <div class="panel-footer">
                                 <div class="columns">
-                                    <div class="column col text-right">
+                                    <div class="column col-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label class="form-switch">
+                                                <input type="checkbox" name="terms" value="true"/>
+                                                <i class="form-icon"></i>
+                                                {{ i18n.trans('i-accept-terms') }}
+                                                <a href="{{ fsc.menuComposer.getTermsPage().url('public') | raw }}" target="_blank">
+                                                    {{ i18n.trans('read-more') }}
+                                                </a>
+                                            </label>
+                                        </div>
+                                        {% if fsc.contact.aceptaprivacidad == false %}
+                                            <div class="form-group">
+                                                <label class="form-switch">
+                                                    <input type="checkbox" name="privacy" value="true"/>
+                                                    <i class="form-icon"></i>
+                                                    {{ i18n.trans('i-accept-privacy-policy') }}
+                                                    <a href="{{ fsc.menuComposer.getPrivacyPage().url('public') | raw }}" target="_blank">
+                                                        {{ i18n.trans('read-more') }}
+                                                    </a>
+                                                </label>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="column text-right">
                                         <button type="submit" class="btn btn-success">
                                             {{ i18n.trans('finalize') }}
                                         </button>
