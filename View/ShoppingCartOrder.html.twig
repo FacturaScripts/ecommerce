@@ -110,6 +110,18 @@
                                                 </label>
                                             </div>
                                         {% endif %}
+                                        {% if fsc.showCookiesPolicy %}
+                                            <div class="form-group">
+                                                <label class="form-switch">
+                                                    <input type="checkbox" name="okCookies" value="TRUE"/>
+                                                    <i class="form-icon"></i>
+                                                    {{ i18n.trans('i-accept-cookies-policy') }}
+                                                    <a href="{{ fsc.menuComposer.getCookiesPage().url('public') | raw }}" target="_blank">
+                                                        {{ i18n.trans('read-more') }}
+                                                    </a>
+                                                </label>
+                                            </div>
+                                        {% endif %}
                                     </div>
                                     <div class="column text-right">
                                         <button type="submit" class="btn btn-success">
