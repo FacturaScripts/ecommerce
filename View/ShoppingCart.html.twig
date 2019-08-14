@@ -108,7 +108,12 @@
                 {% for line in fsc.presupuesto.getLines() %}
                     <tr>
                         <td>
-                            <b>{{ line.referencia }}</b> {{ line.descripcion | raw | nl2br }}
+                            <b>{{ line.referencia }}</b>
+                            {% if line.descripcion | length > 60 %}
+                                {{ line.descripcion | slice(0, 60) | raw | nl2br }}...
+                            {% else %}
+                                {{ line.descripcion | raw | nl2br }}
+                            {% endif %}
                         </td>
                         <td class="text-right">{{ fsc.divisaTools.format(line.pvpunitario) }}</td>
                         <td class="text-right">
