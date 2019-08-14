@@ -59,8 +59,6 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{ asset('node_modules/jquery/dist/jquery.min.js') }}">
-    </script>
     <script>
         function showSection(name) {
             $(".section-tab").removeClass("active");

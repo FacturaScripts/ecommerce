@@ -32,11 +32,10 @@
                     {% endif %}
                 </div>
                 <div class="panel-body bg-gray">
-                    <h2 class="h5">
-                        <i class="fas fa-map-marked-alt fa-fw" aria-hidden="true"></i>
-                        {{ i18n.trans('billing-address') }}
-                    </h2>
-                    <p>
+                    <div class="h5">
+                        {{ i18n.trans('billing-address') }}:
+                    </div>
+                    <p class="mb-2">
                         {{ order.nombrecliente }}, {{ i18n.trans('fiscal-number') }}: {{ order.cifnif }}<br/>
                         {{ order.direccion }}, {{ order.codpostal }}, {{ order.apartado }}<br/>
                         {{ order.ciudad }} ({{ order.provincia }}) {{ order.country() }}
