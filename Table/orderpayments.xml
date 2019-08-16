@@ -31,7 +31,6 @@
         <name>id</name>
         <type>serial</type>
         <null>NO</null>
-        <default>nextval('orderpayments_id_seq'::regclass)</default>
     </column>
     <column>
         <name>idpedido</name>
