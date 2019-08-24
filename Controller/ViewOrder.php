@@ -165,7 +165,7 @@ class ViewOrder extends EditSectionController
             return;
         }
 
-        $this->title = $this->i18n->trans('order') . ' ' . $this->getMainModel()->codigo;
+        $this->title = $this->toolBox()->i18n()->trans('order') . ' ' . $this->getMainModel()->codigo;
     }
 
     protected function payAction()

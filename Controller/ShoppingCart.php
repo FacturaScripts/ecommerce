@@ -94,7 +94,7 @@ class ShoppingCart extends PortalController
     {
         parent::privateCore($response, $user, $permissions);
         if (empty($this->contact)) {
-            $this->miniLog->alert('Contact not found');
+            $this->toolBox()->log()->error('Contact not found');
             return;
         }
 
