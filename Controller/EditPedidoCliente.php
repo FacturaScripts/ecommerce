@@ -20,6 +20,7 @@ namespace FacturaScripts\Plugins\ecommerce\Controller;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Controller\EditPedidoCliente as ParentController;
+use FacturaScripts\Core\Lib\ExtendedController\BaseView;
 
 /**
  * Description of EditPedidoCliente
@@ -29,7 +30,11 @@ use FacturaScripts\Core\Controller\EditPedidoCliente as ParentController;
 class EditPedidoCliente extends ParentController
 {
 
-    protected function createViewOrderPayments($name = 'ListOrderPayment')
+    /**
+     * 
+     * @param string $name
+     */
+    protected function createViewOrderPayments(string $name = 'ListOrderPayment')
     {
         $this->addListView($name, 'OrderPayment', 'payments', 'fas fa-credit-card');
         $this->setSettings($name, 'btnNew', false);
@@ -41,6 +46,11 @@ class EditPedidoCliente extends ParentController
         $this->createViewOrderPayments();
     }
 
+    /**
+     * 
+     * @param string   $viewName
+     * @param BaseView $view
+     */
     protected function loadData($viewName, $view)
     {
         switch ($viewName) {

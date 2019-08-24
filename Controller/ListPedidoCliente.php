@@ -32,7 +32,7 @@ class ListPedidoCliente extends ParentController
      * 
      * @param string $name
      */
-    protected function createViewOrderPayments($name = 'ListOrderPayment')
+    protected function createViewOrderPayments(string $name = 'ListOrderPayment')
     {
         $this->addView($name, 'OrderPayment', 'payments', 'fas fa-credit-card');
         $this->addOrderBy($name, ['creationtime'], 'date', 2);

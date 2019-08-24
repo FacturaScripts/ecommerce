@@ -18,8 +18,7 @@
  */
 namespace FacturaScripts\Plugins\ecommerce\Lib;
 
-use FacturaScripts\Core\App\AppSettings;
-use FacturaScripts\Core\Base\Translator;
+use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Plugins\ecommerce\Model\OrderPayment;
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
@@ -74,10 +73,10 @@ class PaymentGateway
     {
         switch ($platform) {
             case 'paypal':
-                return !empty(AppSettings::get('ecommerce', 'paypalsk'));
+                return !empty($this->toolBox()->appSettings()->get('ecommerce', 'paypalsk'));
 
             case 'stripe':
-                return !empty(AppSettings::get('ecommerce', 'stripesk'));
+                return !empty($this->toolBox()->appSettings()->get('ecommerce', 'stripesk'));
         }
 
         return false;
@@ -128,9 +127,9 @@ class PaymentGateway
      */
     protected function getPaypalEnvironment()
     {
-        $clientId = AppSettings::get('ecommerce', 'paypalpk');
-        $clientSecret = AppSettings::get('ecommerce', 'paypalsk');
-        if (AppSettings::get('ecommerce', 'paypalsandbox') === true) {
+        $clientId = $this->toolBox()->appSettings()->get('ecommerce', 'paypalpk');
+        $clientSecret = $this->toolBox()->appSettings()->get('ecommerce', 'paypalsk');
+        if ($this->toolBox()->appSettings()->get('ecommerce', 'paypalsandbox') === true) {
             return new SandboxEnvironment($clientId, $clientSecret);
         }
 
@@ -146,7 +145,7 @@ class PaymentGateway
      */
     protected function getPaypalHtml($url, $order)
     {
-        $paypalLink = 'https://www.paypal.com/sdk/js?client-id=' . AppSettings::get('ecommerce', 'paypalpk', '')
+        $paypalLink = 'https://www.paypal.com/sdk/js?client-id=' . $this->toolBox()->appSettings()->get('ecommerce', 'paypalpk', '')
             . '&currency=' . $order->coddivisa;
 
         return '<script src="' . $paypalLink . '"></script>
@@ -179,8 +178,7 @@ class PaymentGateway
      */
     protected function getStripeHtml($url, $order, $email)
     {
-        $i18n = new Translator();
-        $publicKey = AppSettings::get('ecommerce', 'stripepk');
+        $publicKey = $this->toolBox()->appSettings()->get('ecommerce', 'stripepk');
 
         return '<form action="' . $url . '&platform=stripe" method="post">
   <script
@@ -189,9 +187,9 @@ class PaymentGateway
     data-amount="' . $order->total * 100 . '"
     data-email="' . $email . '"
     data-name="' . $order->getCompany()->nombrecorto . '"
-    data-description="' . $i18n->trans('order') . ' ' . $order->codigo . '"
+    data-description="' . $this->toolBox()->i18n()->trans('order') . ' ' . $order->codigo . '"
     data-image="' . 'Dinamic/Assets/Images/apple-icon-180x180.png' . '"
-    data-label="' . $i18n->trans('pay-with-card') . '"
+    data-label="' . $this->toolBox()->i18n()->trans('pay-with-card') . '"
     data-locale="auto"
     data-zip-code="true"
     data-currency="' . $order->coddivisa . '">
@@ -231,7 +229,7 @@ class PaymentGateway
 
         /// we must prevent from advanced users that changes data in javascript calls
         if ($orderPayment->amount >= $order->total && strtolower($orderPayment->currency) == strtolower($order->coddivisa)) {
-            $order->codpago = AppSettings::get('ecommerce', 'paypalcodpago');
+            $order->codpago = $this->toolBox()->appSettings()->get('ecommerce', 'paypalcodpago');
             return $this->approveOrder($order);
         }
 
@@ -247,7 +245,7 @@ class PaymentGateway
      */
     protected function payActionStripe($request, &$order)
     {
-        Stripe::setApiKey(AppSettings::get('ecommerce', 'stripesk'));
+        Stripe::setApiKey($this->toolBox()->appSettings()->get('ecommerce', 'stripesk'));
         $charge = StripeCharge::create([
                 'amount' => $order->total * 100,
                 'currency' => $order->coddivisa,
@@ -267,7 +265,16 @@ class PaymentGateway
         $orderPayment->status = $charge['status'];
         $orderPayment->save();
 
-        $order->codpago = AppSettings::get('ecommerce', 'stripecodpago');
+        $order->codpago = $this->toolBox()->appSettings()->get('ecommerce', 'stripecodpago');
         return ($charge['status'] == 'succeeded') ? $this->approveOrder($order) : false;
+    }
+
+    /**
+     * 
+     * @return ToolBox
+     */
+    protected function toolBox()
+    {
+        return new ToolBox();
     }
 }

@@ -32,7 +32,7 @@
                                 <div class="columns">
                                     <div class="column col">
                                         <b>{{ i18n.trans('net') }}</b>:
-                                        {{ fsc.divisaTools.format(fsc.presupuesto.neto) }}
+                                        {{ fsc.toolBox().coins().format(fsc.presupuesto.neto) }}
                                     </div>
                                     {% if fsc.presupuesto.getLines() | length > 0 %}
                                         <div class="column col-8 text-right">
@@ -113,7 +113,7 @@
                                 {{ line.descripcion | raw | nl2br }}
                             {% endif %}
                         </td>
-                        <td class="text-right">{{ fsc.divisaTools.format(line.pvpunitario) }}</td>
+                        <td class="text-right">{{ fsc.toolBox().coins().format(line.pvpunitario) }}</td>
                         <td class="text-right">
                             <input type="number" name="quantity_{{ line.idlinea }}" value="{{ line.cantidad }}" min="0" class="form-input text-right" required=""/>
                         </td>
@@ -155,7 +155,7 @@
                             {{ order.getStatus().nombre }}
                         </td>
                         <td class="text-right">
-                            {{ fsc.divisaTools.format(order.total) }}
+                            {{ fsc.toolBox().coins().format(order.total) }}
                         </td>
                     </tr>
                 {% else %}

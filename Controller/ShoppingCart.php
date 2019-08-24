@@ -18,14 +18,16 @@
  */
 namespace FacturaScripts\Plugins\ecommerce\Controller;
 
+use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Base\DivisaTools;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
 use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\PedidoCliente;
 use FacturaScripts\Dinamic\Model\PresupuestoCliente;
+use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Dinamic\Model\Variante;
 use FacturaScripts\Plugins\webportal\Lib\WebPortal\PortalController;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Description of ShoppingCart
@@ -40,12 +42,6 @@ class ShoppingCart extends PortalController
      * @var CodeModel
      */
     public $codeModel;
-
-    /**
-     *
-     * @var DivisaTools
-     */
-    public $divisaTools;
 
     /**
      *
@@ -65,11 +61,15 @@ class ShoppingCart extends PortalController
      */
     public $presupuesto;
 
-    public function __construct(&$cache, &$i18n, &$miniLog, $className, $uri = '')
+    /**
+     * 
+     * @param string $className
+     * @param string $uri
+     */
+    public function __construct(string $className, string $uri = '')
     {
-        parent::__construct($cache, $i18n, $miniLog, $className, $uri);
+        parent::__construct($className, $uri);
         $this->codeModel = new CodeModel();
-        $this->divisaTools = new DivisaTools();
         $this->docTools = new BusinessDocumentTools();
     }
 
@@ -84,6 +84,12 @@ class ShoppingCart extends PortalController
         return $data;
     }
 
+    /**
+     * 
+     * @param Response              $response
+     * @param User                  $user
+     * @param ControllerPermissions $permissions
+     */
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
@@ -95,6 +101,10 @@ class ShoppingCart extends PortalController
         $this->commonCore();
     }
 
+    /**
+     * 
+     * @param Response $response
+     */
     public function publicCore(&$response)
     {
         parent::publicCore($response);
@@ -127,17 +137,17 @@ class ShoppingCart extends PortalController
             $newLine = $this->presupuesto->getNewProductLine($ref);
             $newLine->cantidad = 1;
             if (!$newLine->save()) {
-                $this->miniLog->error($this->i18n->trans('record-save-error'));
+                $this->toolBox()->i18nLog()->error('record-save-error');
                 return false;
             }
 
             $this->docTools->recalculate($this->presupuesto);
             $this->presupuesto->save();
-            $this->miniLog->notice($this->i18n->trans('record-updated-correctly'));
+            $this->toolBox()->i18nLog()->notice('record-updated-correctly');
             return true;
         }
 
-        $this->miniLog->error($this->i18n->trans('record-save-error'));
+        $this->toolBox()->i18nLog()->error('record-save-error');
         return false;
     }
 
@@ -149,12 +159,12 @@ class ShoppingCart extends PortalController
     protected function checkTerms()
     {
         if (!$this->contact->aceptaprivacidad && 'true' !== $this->request->request->get('privacy')) {
-            $this->miniLog->warning($this->i18n->trans('you-must-accept-privacy-policy'));
+            $this->toolBox()->i18nLog()->warning('you-must-accept-privacy-policy');
             return false;
         }
 
         if ('true' !== $this->request->request->get('terms')) {
-            $this->miniLog->warning($this->i18n->trans('you-must-accept-terms'));
+            $this->toolBox()->i18nLog()->warning('you-must-accept-terms');
             return false;
         }
 
@@ -207,12 +217,12 @@ class ShoppingCart extends PortalController
                 $this->docTools->recalculate($this->presupuesto);
                 $this->presupuesto->save();
 
-                $this->miniLog->notice($this->i18n->trans('record-deleted-correctly'));
+                $this->toolBox()->i18nLog()->notice('record-deleted-correctly');
                 return true;
             }
         }
 
-        $this->miniLog->warning($this->i18n->trans('record-deleted-error'));
+        $this->toolBox()->i18nLog()->error('record-deleted-error');
         return false;
     }
 
@@ -242,12 +252,12 @@ class ShoppingCart extends PortalController
         $this->docTools->recalculate($this->presupuesto);
         if ($this->presupuesto->save()) {
             if ($changes) {
-                $this->miniLog->notice($this->i18n->trans('record-updated-correctly'));
+                $this->toolBox()->i18nLog()->notice('record-updated-correctly');
             }
             return true;
         }
 
-        $this->miniLog->error($this->i18n->trans('record-save-error'));
+        $this->toolBox()->i18nLog()->error('record-save-error');
         return false;
     }
 
@@ -288,7 +298,7 @@ class ShoppingCart extends PortalController
             }
 
             if ($this->presupuesto->save()) {
-                $this->miniLog->notice($this->i18n->trans('record-updated-correctly'));
+                $this->toolBox()->i18nLog()->notice('record-updated-correctly');
 
                 /// redir to new order
                 foreach ($this->presupuesto->childrenDocuments() as $order) {
@@ -298,7 +308,7 @@ class ShoppingCart extends PortalController
             }
         }
 
-        $this->miniLog->error($this->i18n->trans('record-save-error'));
+        $this->toolBox()->i18nLog()->error('record-save-error');
         return false;
     }
 

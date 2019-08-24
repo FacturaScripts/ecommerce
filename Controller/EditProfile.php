@@ -39,7 +39,7 @@ class EditProfile extends ParentController
      * 
      * @param string $sectionName
      */
-    protected function createSectionOrders($sectionName = 'ListPedidoClienteWeb')
+    protected function createSectionOrders(string $sectionName = 'ListPedidoClienteWeb')
     {
         $this->addListSection($sectionName, 'PedidoCliente', 'orders', 'fas fa-shopping-cart');
         $this->addOrderOption($sectionName, ['fecha', 'hora'], 'date', 2);

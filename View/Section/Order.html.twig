@@ -7,19 +7,19 @@
                 <div class="panel-header text-right">
                     {% if order.editable %}
                         <div class="h3">
-                            {{ fsc.divisaTools.format(order.total) }}
+                            {{ fsc.toolBox().coins().format(order.total) }}
                         </div>
                         {{ fsc.getPaymentGatewayHtml() | raw }}
                     {% elseif order.getStatus().generadoc is empty %}
                         <div class="h3">
-                            {{ fsc.divisaTools.format(order.total) }}
+                            {{ fsc.toolBox().coins().format(order.total) }}
                         </div>
                         <span class="label label-rounded label-error">
                             {{ order.getStatus().nombre }}
                         </span>
                     {% else %}
                         <div class="h3">
-                            {{ fsc.divisaTools.format(order.total) }}
+                            {{ fsc.toolBox().coins().format(order.total) }}
                         </div>
                         <span class="label label-rounded label-success">
                             {{ order.getStatus().nombre }}
@@ -73,7 +73,7 @@
                                         {{ line.cantidad }}
                                     </td>
                                     <td class="text-right">
-                                        {{ fsc.divisaTools.format(line.pvpunitario) }}
+                                        {{ fsc.toolBox().coins().format(line.pvpunitario) }}
                                     </td>
                                     <td class="text-right">
                                         {% if line.dtopor == 0 %}
@@ -125,25 +125,25 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    {{ fsc.divisaTools.format(order.neto) }}
+                                    {{ fsc.toolBox().coins().format(order.neto) }}
                                 </td>
                                 {% if order.totaliva != 0 %}
                                     <td class="text-right">
-                                        {{ fsc.divisaTools.format(order.totaliva) }}
+                                        {{ fsc.toolBox().coins().format(order.totaliva) }}
                                     </td>
                                 {% endif %}
                                 {% if order.totalrecargo != 0 %}
                                     <td class="text-right">
-                                        {{ fsc.divisaTools.format(order.totalrecargo) }}
+                                        {{ fsc.toolBox().coins().format(order.totalrecargo) }}
                                     </td>
                                 {% endif %}
                                 {% if order.totalirpf != 0 %}
                                     <td class="text-right">
-                                        {{ fsc.divisaTools.format(order.totalirpf) }}
+                                        {{ fsc.toolBox().coins().format(order.totalirpf) }}
                                     </td>
                                 {% endif %}
                                 <td class="text-right">
-                                    {{ fsc.divisaTools.format(order.total) }}
+                                    {{ fsc.toolBox().coins().format(order.total) }}
                                 </td>
                             </tr>
                         </tbody>

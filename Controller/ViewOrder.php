@@ -18,7 +18,6 @@
  */
 namespace FacturaScripts\Plugins\ecommerce\Controller;
 
-use FacturaScripts\Core\Base\DivisaTools;
 use FacturaScripts\Dinamic\Lib\ExportManager;
 use FacturaScripts\Dinamic\Model\PedidoCliente;
 use FacturaScripts\Plugins\ecommerce\Lib\PaymentGateway;
@@ -35,12 +34,6 @@ class ViewOrder extends EditSectionController
 
     /**
      *
-     * @var DivisaTools
-     */
-    public $divisaTools;
-
-    /**
-     *
      * @var PedidoCliente
      */
     protected $mainModel;
@@ -51,10 +44,14 @@ class ViewOrder extends EditSectionController
      */
     protected $paymentGateway;
 
-    public function __construct(&$cache, &$i18n, &$miniLog, $className, $uri = '')
+    /**
+     * 
+     * @param string $className
+     * @param string $uri
+     */
+    public function __construct(string $className, string $uri = '')
     {
-        parent::__construct($cache, $i18n, $miniLog, $className, $uri);
-        $this->divisaTools = new DivisaTools();
+        parent::__construct($className, $uri);
         $this->paymentGateway = new PaymentGateway();
     }
 
@@ -137,18 +134,23 @@ class ViewOrder extends EditSectionController
         return parent::execPreviousAction($action);
     }
 
+    /**
+     * 
+     * @param string $sectionName
+     */
     protected function loadData(string $sectionName)
     {
         switch ($sectionName) {
             case 'order':
-                return $this->loadOrder();
+                $this->loadOrder();
+                break;
         }
     }
 
     protected function loadOrder()
     {
         if (!$this->getMainModel(true)->exists()) {
-            $this->miniLog->alert($this->i18n->trans('no-data'));
+            $this->toolBox()->i18nLog()->warning('no-data');
             $this->response->setStatusCode(Response::HTTP_NOT_FOUND);
             $this->webPage->noindex = true;
             $this->setTemplate('Master/Portal404');
@@ -156,7 +158,7 @@ class ViewOrder extends EditSectionController
         }
 
         if (!$this->contactCanSee()) {
-            $this->miniLog->alert($this->i18n->trans('access-denied'));
+            $this->toolBox()->i18nLog()->warning('access-denied');
             $this->response->setStatusCode(Response::HTTP_FORBIDDEN);
             $this->webPage->noindex = true;
             $this->setTemplate('Master/AccessDenied');
@@ -174,12 +176,12 @@ class ViewOrder extends EditSectionController
         }
 
         if ($this->paymentGateway->payAction($this->request, $order)) {
-            $this->miniLog->notice($this->i18n->trans('record-updated-correctly'));
+            $this->toolBox()->i18nLog()->notice('record-updated-correctly');
             $this->getMainModel(true);
             return;
         }
 
-        $this->miniLog->error($this->i18n->trans('record-save-error'));
+        $this->toolBox()->i18nLog()->error('record-save-error');
     }
 
     protected function printAction()
