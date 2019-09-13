@@ -22,6 +22,9 @@
                                         <a href="#" id="tabOrders" class="section-tab" onclick="return showSection('Orders');">
                                             <i class="far fa-calendar-alt" aria-hidden="true"></i>
                                             {{ i18n.trans('orders') }}
+                                            {% if fsc.pedidos | length > 0 %}
+                                                <span class="label label-rounded label-primary">{{ fsc.pedidos | length }}</span>
+                                            {% endif %}
                                         </a>
                                     </li>
                                 </ul>

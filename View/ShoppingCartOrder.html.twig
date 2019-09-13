@@ -54,12 +54,12 @@
                                         <input type="text" name="direccion" value="{{ fsc.presupuesto.direccion }}" class="form-input" />
                                     </div>
                                     <div class="column col-3 col-sm-12 mb-2">
-                                        {{ i18n.trans('zip-code') }}:
-                                        <input type="text" name="codpostal" value="{{ fsc.presupuesto.codpostal }}" maxlength="10" class="form-input" />
+                                        {{ i18n.trans('post-office-box') }}:
+                                        <input type="text" name="apartado" value="{{ fsc.presupuesto.apartado }}" maxlength="10" class="form-input" placeholder="{{ i18n.trans('optional') }}"/>
                                     </div>
                                     <div class="column col-3 col-sm-12 mb-2">
-                                        {{ i18n.trans('postalmail') }}:
-                                        <input type="text" name="apartado" value="{{ fsc.presupuesto.apartado }}" maxlength="10" class="form-input" placeholder="{{ i18n.trans('optional') }}"/>
+                                        {{ i18n.trans('zip-code') }}:
+                                        <input type="text" name="codpostal" value="{{ fsc.presupuesto.codpostal }}" maxlength="10" class="form-input" />
                                     </div>
                                 </div>
                                 <div class="columns">

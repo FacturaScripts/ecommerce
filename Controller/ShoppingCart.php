@@ -143,7 +143,6 @@ class ShoppingCart extends PortalController
 
             $this->docTools->recalculate($this->presupuesto);
             $this->presupuesto->save();
-            $this->toolBox()->i18nLog()->notice('record-updated-correctly');
             return true;
         }
 
@@ -216,8 +215,6 @@ class ShoppingCart extends PortalController
             if ($line->delete()) {
                 $this->docTools->recalculate($this->presupuesto);
                 $this->presupuesto->save();
-
-                $this->toolBox()->i18nLog()->notice('record-deleted-correctly');
                 return true;
             }
         }
