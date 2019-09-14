@@ -8,7 +8,7 @@
         }
     ],
     "require": {
-        "stripe/stripe-php": "v6.*",
-        "paypal/paypal-checkout-sdk": "1.0.0"
+        "stripe/stripe-php": "v7.*",
+        "paypal/paypal-checkout-sdk": "1.*"
     }
 }

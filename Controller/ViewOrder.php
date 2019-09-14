@@ -65,8 +65,7 @@ class ViewOrder extends EditSectionController
             return false;
         }
 
-        $order = $this->getMainModel();
-        return $order->codcliente == $order->codcliente;
+        return $this->getMainModel()->codcliente == $this->contact->codcliente;
     }
 
     /**

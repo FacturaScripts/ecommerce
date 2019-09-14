@@ -26,7 +26,9 @@ use PayPalCheckoutSdk\Core\ProductionEnvironment;
 use PayPalCheckoutSdk\Core\SandboxEnvironment;
 use PayPalCheckoutSdk\Orders\OrdersGetRequest;
 use Stripe\Stripe;
-use Stripe\Charge as StripeCharge;
+use Stripe\Checkout\Session as StripeSession;
+use Stripe\Event as StripeEvent;
+use Stripe\PaymentIntent as StripePaymentIntent;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -52,12 +54,12 @@ class PaymentGateway
         }
 
         $html = '';
-        if ($this->isEnabled('paypal')) {
-            $html .= $this->getPaypalHtml($url, $order);
-        }
-
         if ($this->isEnabled('stripe')) {
             $html .= $this->getStripeHtml($url, $order, $email);
+        }
+
+        if ($this->isEnabled('paypal')) {
+            $html .= $this->getPaypalHtml($url, $order);
         }
 
         return $html;
@@ -96,7 +98,7 @@ class PaymentGateway
                 return $this->payActionPaypal($request, $order);
 
             case 'stripe':
-                return $this->payActionStripe($request, $order);
+                return $this->payActionStripe($order);
         }
 
         return false;
@@ -105,11 +107,18 @@ class PaymentGateway
     /**
      * 
      * @param SalesDocument $order
+     * @param OrderPayment  $payment
      *
      * @return bool
      */
-    protected function approveOrder(&$order)
+    protected function approveOrder(&$order, $payment)
     {
+        /// prevent fraud
+        if ($payment->amount < $order->total || strtolower($payment->currency) != strtolower($order->coddivisa)) {
+            $this->toolBox()->log()->critical('ecommerce-payment-disagreements : order #' . $order->primaryColumnValue());
+            return false;
+        }
+
         /// approve order
         foreach ($order->getAvaliableStatus() as $status) {
             if (!empty($status->generadoc)) {
@@ -178,23 +187,37 @@ class PaymentGateway
      */
     protected function getStripeHtml($url, $order, $email)
     {
-        $publicKey = $this->toolBox()->appSettings()->get('ecommerce', 'stripepk');
+        $domain = $this->toolBox()->appSettings()->get('webportal', 'url');
 
-        return '<form action="' . $url . '&platform=stripe" method="post">
-  <script
-    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-    data-key="' . $publicKey . '"
-    data-amount="' . $order->total * 100 . '"
-    data-email="' . $email . '"
-    data-name="' . $order->getCompany()->nombrecorto . '"
-    data-description="' . $this->toolBox()->i18n()->trans('order') . ' ' . $order->codigo . '"
-    data-image="' . 'Dinamic/Assets/Images/apple-icon-180x180.png' . '"
-    data-label="' . $this->toolBox()->i18n()->trans('pay-with-card') . '"
-    data-locale="auto"
-    data-zip-code="true"
-    data-currency="' . $order->coddivisa . '">
-  </script>
-</form><br/>';
+        Stripe::setApiKey($this->toolBox()->appSettings()->get('ecommerce', 'stripesk'));
+        $session = StripeSession::create([
+                'payment_method_types' => ['card'],
+                'customer_email' => $email,
+                'line_items' => [[
+                    'name' => $order->primaryColumnValue(),
+                    'description' => $this->toolBox()->i18n()->trans('order') . ' ' . $order->primaryDescription(),
+                    'images' => [$domain . '/Dinamic/Assets/Images/apple-icon-180x180.png'],
+                    'amount' => $order->total * 100,
+                    'currency' => $order->coddivisa,
+                    'quantity' => 1,
+                    ]],
+                'success_url' => $domain . '/' . $url . '&platform=stripe',
+                'cancel_url' => $domain . '/' . $url,
+        ]);
+
+        return '<script src="https://js.stripe.com/v3/"></script>'
+            . '<script>'
+            . 'function payWithStripe() {'
+            . "var stripe = Stripe('" . $this->toolBox()->appSettings()->get('ecommerce', 'stripepk') . "');"
+            . "stripe.redirectToCheckout({sessionId: '" . $session->id . "'}).then(function (result) {"
+            . "console.log(result);"
+            . "});"
+            . 'return false;'
+            . '}'
+            . '</script>'
+            . '<a href="#" class="btn btn-primary btn-block mb-2" onclick="return payWithStripe();">'
+            . $this->toolBox()->i18n()->trans('pay-with-card')
+            . '</a>';
     }
 
     /**
@@ -223,50 +246,54 @@ class PaymentGateway
         $orderPayment->status = $response->result->status;
         $orderPayment->save();
 
-        if ($response->result->status != 'COMPLETED') {
-            return false;
-        }
-
-        /// we must prevent from advanced users that changes data in javascript calls
-        if ($orderPayment->amount >= $order->total && strtolower($orderPayment->currency) == strtolower($order->coddivisa)) {
-            $order->codpago = $this->toolBox()->appSettings()->get('ecommerce', 'paypalcodpago');
-            return $this->approveOrder($order);
-        }
-
-        return false;
+        $order->codpago = $this->toolBox()->appSettings()->get('ecommerce', 'paypalcodpago');
+        return $response->result->status == 'COMPLETED' ? $this->approveOrder($order, $orderPayment) : false;
     }
 
     /**
      * 
-     * @param Request       $request
      * @param SalesDocument $order
      *
      * @return bool
      */
-    protected function payActionStripe($request, &$order)
+    protected function payActionStripe(&$order)
     {
         Stripe::setApiKey($this->toolBox()->appSettings()->get('ecommerce', 'stripesk'));
-        $charge = StripeCharge::create([
-                'amount' => $order->total * 100,
-                'currency' => $order->coddivisa,
-                'description' => $order->codigo,
-                'source' => $request->request->get('stripeToken'),
-                'expand' => ['balance_transaction']
+        $events = StripeEvent::all([
+                'type' => 'checkout.session.completed',
+                'created' => [
+                    // Check for events created in the last 24 hours.
+                    'gte' => time() - 24 * 60 * 60,
+                ],
         ]);
 
-        /// save payment
-        $orderPayment = new OrderPayment();
-        $orderPayment->amount = (float) $charge['amount'] / 100;
-        $orderPayment->currency = $charge['currency'];
-        $orderPayment->customid = $charge['id'];
-        $orderPayment->fee = (float) $charge['balance_transaction']->fee / 100;
-        $orderPayment->idpedido = $order->primaryColumnValue();
-        $orderPayment->platform = 'stripe';
-        $orderPayment->status = $charge['status'];
-        $orderPayment->save();
+        /// read the last session events
+        foreach ($events as $event) {
+            $session = $event->data->object;
+            if (empty($session->payment_intent) || $session->display_items[0]->custom->name != $order->primaryColumnValue()) {
+                continue;
+            }
 
-        $order->codpago = $this->toolBox()->appSettings()->get('ecommerce', 'stripecodpago');
-        return ($charge['status'] == 'succeeded') ? $this->approveOrder($order) : false;
+            /// get PaymentIntent
+            $payment = StripePaymentIntent::retrieve($session->payment_intent);
+
+            /// save payment
+            $orderPayment = new OrderPayment();
+            $orderPayment->amount = (float) $payment->amount / 100;
+            $orderPayment->currency = $payment->currency;
+            $orderPayment->customid = $payment->id;
+            $orderPayment->fee = 0;
+            $orderPayment->idpedido = $order->primaryColumnValue();
+            $orderPayment->platform = 'stripe';
+            $orderPayment->status = $payment->status;
+            $orderPayment->save();
+
+            $order->codpago = $this->toolBox()->appSettings()->get('ecommerce', 'stripecodpago');
+            return $orderPayment->status == 'succeeded' ? $this->approveOrder($order, $orderPayment) : false;
+        }
+
+        $this->toolBox()->log()->critical('ecommerce-stripe-payment-error : order #' . $order->primaryColumnValue());
+        return false;
     }
 
     /**
