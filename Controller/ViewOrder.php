@@ -149,7 +149,6 @@ class ViewOrder extends EditSectionController
     protected function loadOrder()
     {
         if (!$this->getMainModel(true)->exists()) {
-            $this->toolBox()->i18nLog()->warning('no-data');
             $this->response->setStatusCode(Response::HTTP_NOT_FOUND);
             $this->webPage->noindex = true;
             $this->setTemplate('Master/Portal404');
@@ -157,7 +156,6 @@ class ViewOrder extends EditSectionController
         }
 
         if (!$this->contactCanSee()) {
-            $this->toolBox()->i18nLog()->warning('access-denied');
             $this->response->setStatusCode(Response::HTTP_FORBIDDEN);
             $this->webPage->noindex = true;
             $this->setTemplate('Master/AccessDenied');

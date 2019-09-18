@@ -1,8 +1,8 @@
 {% extends "Master/PortalTemplate.html.twig" %}
 
 {% block body %}
-    {% import _self as macros %}
     <div class="body-section">
+        <br/>
         <div class="container grid-lg">
             <div class="columns">
                 <div class="column col-12">
@@ -29,8 +29,8 @@
                                     </li>
                                 </ul>
                             </div>
-                            {{ macros.orderLines(fsc, i18n) }}
-                            {{ macros.orderList(fsc, i18n) }}
+                            {{ _self.orderLines(fsc, i18n) }}
+                            {{ _self.orderList(fsc, i18n) }}
                             <div class="panel-footer">
                                 <div class="columns">
                                     <div class="column col">
