@@ -21,6 +21,10 @@ namespace FacturaScripts\Plugins\ecommerce;
 require_once __DIR__ . '/vendor/autoload.php';
 
 use FacturaScripts\Core\Base\InitClass;
+use FacturaScripts\Plugins\ecommerce\Lib\PaymentGateway;
+use FacturaScripts\Plugins\ecommerce\Lib\PaymentGatewayBitcoin;
+use FacturaScripts\Plugins\ecommerce\Lib\PaymentGatewayPaypal;
+use FacturaScripts\Plugins\ecommerce\Lib\PaymentGatewayStripe;
 
 /**
  * Description of Init
@@ -32,7 +36,9 @@ class Init extends InitClass
 
     public function init()
     {
-        /// do not remove this file, autoloader is necessary
+        PaymentGateway::register(new PaymentGatewayStripe());
+        PaymentGateway::register(new PaymentGatewayBitcoin());
+        PaymentGateway::register(new PaymentGatewayPaypal());
     }
 
     public function update()

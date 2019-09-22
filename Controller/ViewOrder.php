@@ -176,7 +176,7 @@ class ViewOrder extends EditSectionController
             return;
         }
 
-        if ($this->paymentGateway->payAction($this->request, $order)) {
+        if ($this->paymentGateway->payAction($order, $this->request)) {
             $this->toolBox()->i18nLog()->notice('record-updated-correctly');
             $this->getMainModel(true);
             return;

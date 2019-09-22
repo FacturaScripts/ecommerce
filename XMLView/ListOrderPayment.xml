@@ -22,31 +22,36 @@
     <columns>
         <group name="data" numcolumns="12">
             <column name="code" display="none" order="100">
-                <widget type="text" fieldname="id" required="true" />
+                <widget type="text" fieldname="id" />
             </column>
             <column name="platform" order="110">
-                <widget type="text" fieldname="platform" readonly="true" />
+                <widget type="text" fieldname="platform" />
             </column>
             <column name="custom-id" order="120">
-                <widget type="text" fieldname="customid" readonly="true" />
+                <widget type="text" fieldname="customid" />
             </column>
             <column name="amount" display="right" order="130">
-                <widget type="money" fieldname="amount" />
+                <widget type="number" fieldname="amount" decimal="8" />
             </column>
-            <column name="fee" display="right" order="140">
-                <widget type="money" fieldname="fee" />
+            <column name="currency" order="140">
+                <widget type="text" fieldname="currency" />
             </column>
-            <column name="status" order="150">
+            <column name="fee" display="right" order="150">
+                <widget type="number" fieldname="fee" decimal="8" />
+            </column>
+            <column name="status" order="160">
                 <widget type="text" fieldname="status" />
             </column>
-            <column name="date" display="right" order="160">
-                <widget type="date" fieldname="creationtime" readonly="true" />
+            <column name="date" display="right" order="170">
+                <widget type="date" fieldname="creationtime" />
             </column>
         </group>
     </columns>
     <rows>
         <row type="status">
             <option color="info" fieldname="platform">stripe</option>
+            <option color="secondary" fieldname="platform">bitcoin</option>
+            <option color="warning" fieldname="platform">paypal</option>
         </row>
     </rows>
 </view>

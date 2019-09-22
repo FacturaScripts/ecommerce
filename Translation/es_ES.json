@@ -1,5 +1,13 @@
 {
+    "address2": "Dirección 2",
+    "address3": "Dirección 3",
+    "address4": "Dirección 4",
+    "fee": "Comisión",
+    "pay-with-btc": "Pagar con Bitcoin",
     "payments": "Pagos",
     "platform": "Plataforma",
+    "private-key": "Clave privada",
+    "public-key": "Clave pública",
+    "sandbox-mode": "Modo sandbox",
     "shopping-cart": "Carrito"
 }
