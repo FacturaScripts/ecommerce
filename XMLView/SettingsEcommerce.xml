@@ -11,7 +11,7 @@
             </column>
         </group>
         <group name="paypal" icon="fab fa-paypal" title="paypal" numcolumns="12">
-            <column name="payment-method" numcolumns="4" order="100">
+            <column name="payment-method" titleurl="ListFormaPago" numcolumns="4" order="100">
                 <widget type="select" fieldname="paypalcodpago" onclick="EditFormaPago" required="true">
                     <values source="formaspago" fieldcode="codpago" fieldtitle="descripcion"></values>
                 </widget>
@@ -27,7 +27,7 @@
             </column>
         </group>
         <group name="stripe" icon="far fa-credit-card" title="stripe" numcolumns="12">
-            <column name="payment-method" numcolumns="4" order="100">
+            <column name="payment-method" titleurl="ListFormaPago" numcolumns="4" order="100">
                 <widget type="select" fieldname="stripecodpago" onclick="EditFormaPago" required="true">
                     <values source="formaspago" fieldcode="codpago" fieldtitle="descripcion"></values>
                 </widget>
@@ -37,6 +37,25 @@
             </column>
             <column name="private-key" numcolumns="4" order="120">
                 <widget type="text" fieldname="stripesk" icon="fas fa-key" />
+            </column>
+        </group>
+        <group name="bitcoin" icon="fab fa-bitcoin" title="bitcoin" numcolumns="12">
+            <column name="payment-method" titleurl="ListFormaPago" numcolumns="4" order="100">
+                <widget type="select" fieldname="btccodpago" onclick="EditFormaPago" required="true">
+                    <values source="formaspago" fieldcode="codpago" fieldtitle="descripcion"></values>
+                </widget>
+            </column>
+            <column name="address" numcolumns="4" order="110">
+                <widget type="text" fieldname="btcaddr1" icon="fas fa-qrcode" />
+            </column>
+            <column name="address2" numcolumns="4" order="120">
+                <widget type="text" fieldname="btcaddr2" icon="fas fa-qrcode" />
+            </column>
+            <column name="address3" numcolumns="4" order="130">
+                <widget type="text" fieldname="btcaddr3" icon="fas fa-qrcode" />
+            </column>
+            <column name="address4" numcolumns="4" order="140">
+                <widget type="text" fieldname="btcaddr4" icon="fas fa-qrcode" />
             </column>
         </group>
     </columns>

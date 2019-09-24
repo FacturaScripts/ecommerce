@@ -88,7 +88,9 @@ class OrderPayment extends Base\ModelClass
     public function clear()
     {
         parent::clear();
+        $this->amount = 0.0;
         $this->creationtime = date('d-m-Y H:i:s');
+        $this->fee = 0.0;
         $this->status = 'unknown';
     }
 
