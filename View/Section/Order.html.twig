@@ -11,21 +11,24 @@
                         </div>
                         {{ fsc.getPaymentGatewayHtml() | raw }}
                     {% elseif order.getStatus().generadoc is empty %}
-                        <div class="h3">
+                        <div class="h3 text-center">
                             {{ fsc.toolBox().coins().format(order.total) }}
                         </div>
-                        <span class="label label-rounded label-error">
-                            {{ order.getStatus().nombre }}
-                        </span>
+                        <p class="text-center">
+                            <span class="label label-rounded label-error">
+                                {{ order.getStatus().nombre }}
+                            </span>
+                        </p>
                     {% else %}
-                        <div class="h3">
+                        <div class="h3 text-center">
                             {{ fsc.toolBox().coins().format(order.total) }}
                         </div>
-                        <span class="label label-rounded label-success">
-                            {{ order.getStatus().nombre }}
-                        </span>
-                        <br/><br/>
-                        <a href="{{ order.url('public') }}&action=print" target="_blank" class="btn">
+                        <p class="text-center">
+                            <span class="label label-rounded label-success">
+                                {{ order.getStatus().nombre }}
+                            </span>
+                        </p>
+                        <a href="{{ order.url('public') }}&action=print" target="_blank" class="btn btn-block">
                             <i class="fas fa-print fa-fw" aria-hidden="true"></i>
                             {{ i18n.trans('print') }}
                         </a>
