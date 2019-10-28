@@ -190,7 +190,7 @@ class ViewOrder extends EditSectionController
         $this->setTemplate(false);
         $exportManager = new ExportManager();
         $exportManager->newDoc($exportManager->defaultOption());
-        $exportManager->generateBusinessDocPage($this->getMainModel());
+        $exportManager->addBusinessDocPage($this->getMainModel());
         $exportManager->show($this->response);
     }
 }
